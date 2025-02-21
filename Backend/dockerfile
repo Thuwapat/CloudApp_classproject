@@ -1,0 +1,23 @@
+# Dockerfile
+
+# เลือก base image ของ Python เวอร์ชันที่ต้องการ
+FROM python:3.9-slim
+
+# ตั้ง working directory ใน container
+WORKDIR /app
+
+# คัดลอกไฟล์ทั้งหมด (ยกเว้นที่อยู่ใน .dockerignore) ไปยัง /app
+COPY . /app
+
+# คัดลอกไฟล์ requirements.txt ไปยัง container
+COPY requirements.txt /app
+
+# ติดตั้ง dependencies ตาม requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# กำหนด port ที่ต้องการให้ container เปิด
+EXPOSE 5000
+
+# คำสั่งเริ่มต้นเมื่อ container รัน
+CMD ["python", "app.py"]
+

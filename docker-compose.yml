@@ -1,0 +1,28 @@
+# Database 
+version: "3.8"
+services:
+  db:
+    image: postgres:13
+    container_name: my_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./Backend      # โฟลเดอร์ที่มี Dockerfile สำหรับ Flask
+      dockerfile: Dockerfile
+    container_name: flask_backend
+    ports:
+      - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
+    environment:
+      - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
+      - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
+    depends_on:
+      - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
