@@ -1,8 +1,22 @@
 from flask import Flask , request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 app = Flask(__name__)
+
+SWAGGER_URL="/swagger"
+API_URL="/static/swagger.json"
+
+swagger_ui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': 'Cloudproject'
+    }
+)
+app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 # กำหนดค่าเชื่อมต่อฐานข้อมูล (ในที่นี้ใช้ SQLite)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -65,6 +79,5 @@ def getphoto():
     hello = "hello test"
     return hello, 200
 
-if __name__ == '__main__':
-     
-    app.run(debug=True)
+if __name__ == '__main__':     
+    app.run(debug=True , host="0.0.0.0", port=8080)
