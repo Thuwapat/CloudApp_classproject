@@ -26,3 +26,6 @@ services:
       - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
     depends_on:
       - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
+
+volumes:
+  db_data:

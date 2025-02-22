@@ -9,6 +9,7 @@ CD เข้า backend
 `python3 -m venv venv` 
 หากเกิดปัญหา ใช้ 
 `Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process` เเล้วทำข้างต้นใหม่
+ถ้าออกจาก venv เเล้วต้งการเข้าใหม่ `venv\Scripts\activate`
 
 ## 3. ติดตั้ง Dependencies
 `pip install -r requirements.txt`
