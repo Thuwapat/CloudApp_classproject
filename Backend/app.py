@@ -19,18 +19,19 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
 # กำหนดค่าเชื่อมต่อฐานข้อมูล (ในที่นี้ใช้ SQLite)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 
 
 # Model สำหรับเก็บข้อมูลผู้ใช้
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(256), nullable=False)
+# class User(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(150), unique=True, nullable=False)
+#     email = db.Column(db.String(150), unique=True, nullable=False)
+#     password = db.Column(db.String(256), nullable=False)
+
     
 @app.route('/register', methods=['POST'])
 def register():
@@ -80,4 +81,4 @@ def getphoto():
     return hello, 200
 
 if __name__ == '__main__':     
-    app.run(debug=True , host="0.0.0.0", port=8080)
+    app.run(debug=True , host="0.0.0.0")

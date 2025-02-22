@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: flask_backend
     ports:
-      - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
+      - "5002:5000"           # map port 5000 ของ container กับเครื่อง host
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
