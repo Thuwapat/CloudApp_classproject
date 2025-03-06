@@ -2,9 +2,11 @@ from flask import Flask , request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app,origins=["http://localhost:3000"])
 
 SWAGGER_URL="/swagger"
 API_URL="/static/swagger.json"
@@ -58,23 +60,29 @@ def register():
 
     return jsonify({'message': 'User registered successfully'}), 201
 
+users = {
+    "admin@kkumail.com": "12345",
+    "user1": "password1",
+}
+
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
     
-    if not username or not password:
+    if not email or not password:
         return jsonify({'error': 'Missing data'}), 400
 
-    # user = User.query.filter_by(username=username).first()
-    # if not user or not check_password_hash(user.password, password):
+     #user = User.query.filter_by(username=username).first()
+    # if not users or not check_password_hash(users.password, password):
     #     return jsonify({'error': 'Invalid credentials'}), 401
-
-    # ถ้า login สำเร็จ คุณอาจสร้าง session หรือส่ง token กลับไปให้ client
-    return jsonify({'message': 'Login successful'}), 200
-
+    if email in users and users[email] == password:
+        return jsonify({'message': 'Login successful', 'token': 'fake-jwt-token'}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
+    
 @app.route('/test', methods=['GET'])
 def getphoto():
     hello = "hello test"

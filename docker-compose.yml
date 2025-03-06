@@ -20,12 +20,25 @@ services:
       dockerfile: Dockerfile
     container_name: flask_backend
     ports:
-      - "5002:5000"           # map port 5000 ของ container กับเครื่อง host
+      - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
     depends_on:
       - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
-
+  
+  frontend:
+    build:
+      context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app        # mount โค้ดจากเครื่อง host ไปที่ /app ใน container
+      - /app/node_modules       # ใช้ anonymous volume สำหรับ node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:5000
+    command: npm run dev
 volumes:
   db_data:
