@@ -1,92 +1,91 @@
-from flask import Flask , request, jsonify
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_swagger_ui import get_swaggerui_blueprint
+import jwt
+import datetime
 from flask_cors import CORS
-
+from models import db, User
+import os
 
 app = Flask(__name__)
-CORS(app,origins=["http://localhost:3000"])
+CORS(app, origins=["http://localhost:3000"])
 
-SWAGGER_URL="/swagger"
-API_URL="/static/swagger.json"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/mydb')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 
-swagger_ui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': 'Cloudproject'
-    }
-)
-app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
+db.init_app(app)
 
-# กำหนดค่าเชื่อมต่อฐานข้อมูล (ในที่นี้ใช้ SQLite)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+with app.app_context():
+    db.create_all()
 
-# db = SQLAlchemy(app)
-
-
-# Model สำหรับเก็บข้อมูลผู้ใช้
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(150), unique=True, nullable=False)
-#     email = db.Column(db.String(150), unique=True, nullable=False)
-#     password = db.Column(db.String(256), nullable=False)
-
-    
+# Register endpoint
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    username = data.get('username')
     email = data.get('email')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
     password = data.get('password')
-    
-    if not username or not email or not password:
-        
-      return jsonify({'error': 'Missing data'}), 400
+    role = data.get('role')  # 1, 2, หรือ 3
 
-    # ตรวจสอบว่าผู้ใช้มีอยู่แล้วหรือไม่
-    
-    # if User.query.filter((User.username == username) | (User.email == email)).first():
-    #      return jsonify({'error': 'User already exists'}), 400
+    if not all([email, first_name, last_name, password, role]):
+        return jsonify({'error': 'Missing data'}), 400
 
-    # สร้าง hash ของ password เพื่อความปลอดภัย
-    
-    # hashed_password = generate_password_hash(password, method='sha256')
-    # new_user = User(username=username, email=email, password=hashed_password)
-    # db.session.add(new_user)
-    # db.session.commit()
+    if role not in [1, 2, 3]:
+        return jsonify({'error': 'Invalid role'}), 400
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'Email already exists'}), 400
+
+    # เปลี่ยน method เป็น pbkdf2:sha256
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+    new_user = User(email=email, first_name=first_name, last_name=last_name, password=hashed_password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
 
     return jsonify({'message': 'User registered successfully'}), 201
 
-users = {
-    "admin@kkumail.com": "12345",
-    "user1": "password1",
-}
-
-
+# Login endpoint
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    
+
     if not email or not password:
         return jsonify({'error': 'Missing data'}), 400
 
-     #user = User.query.filter_by(username=username).first()
-    # if not users or not check_password_hash(users.password, password):
-    #     return jsonify({'error': 'Invalid credentials'}), 401
-    if email in users and users[email] == password:
-        return jsonify({'message': 'Login successful', 'token': 'fake-jwt-token'}), 200
-    else:
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password, password):
         return jsonify({'error': 'Invalid credentials'}), 401
-    
-@app.route('/test', methods=['GET'])
-def getphoto():
-    hello = "hello test"
-    return hello, 200
 
-if __name__ == '__main__':     
-    app.run(debug=True , host="0.0.0.0")
+    token = jwt.encode({
+        'user_id': user.id,
+        'role': user.role,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+    }, app.config['SECRET_KEY'], algorithm='HS256')
+
+    return jsonify({
+        'message': 'Login successful',
+        'token': token,
+        'user': user.to_dict()
+    }), 200
+
+# Protected route
+@app.route('/protected', methods=['GET'])
+def protected():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing'}), 401
+
+    try:
+        data = jwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
+        return jsonify({'message': 'Protected route', 'user_id': data['user_id'], 'role': data['role']}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token has expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token'}), 401
+
+if __name__ == '__main__':
+    app.run(debug=True, host="0.0.0.0", port=5000)
