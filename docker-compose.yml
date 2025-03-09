@@ -1,5 +1,6 @@
 # Database 
 version: "3.8"
+name: COE_Room_AcessControl
 services:
   db:
     image: postgres:13
@@ -12,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
 
   backend:
     build:
@@ -21,12 +22,17 @@ services:
     container_name: flask_backend
     ports:
       - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
+    volumes:
+    - ./certificates/cert.pem:/app/cert.pem
+    - ./certificates/key.pem:/app/key.pem
+    command: flask run --host=0.0.0.0 --port=5000 --cert=/app/cert.pem --key=/app/key.pem --debug      
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
+      - GOOGLE_CLIENT_ID=1033311153846-985omsfscb3beu6u42c0qpo6k6m5vheg.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
     depends_on:
       - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
-  
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -34,11 +40,17 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app        # mount โค้ดจากเครื่อง host ไปที่ /app ใน container
-      - /app/node_modules       # ใช้ anonymous volume สำหรับ node_modules
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules        # mount โค้ดจากเครื่อง host ไปที่ /app ใน container
+      - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_BASE_URL=http://backend:5000
+      - NEXT_PUBLIC_API_BASE_URL=https://localhost:5000
     command: npm run dev
+    depends_on:
+      - backend
+
 volumes:
   db_data:
+  frontend_node_modules:  # เพิ่ม Named Volume สำหรับ node_modules
+  frontend_next:  # เพิ่ม Named Volume สำหรับ .next
