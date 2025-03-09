@@ -9,7 +9,7 @@ class User(db.Model):
     first_name = db.Column(db.String(150), nullable=False)
     last_name = db.Column(db.String(150), nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.Integer, nullable=False)  # 1 = Admin, 2 = Teacher/Staff, 3 = Student
+    role = db.Column(db.String(50), nullable=False)
 
     def to_dict(self):
         return {

@@ -27,12 +27,12 @@ def register():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     password = data.get('password')
-    role = data.get('role')  # 1, 2, หรือ 3
+    role = data.get('role')  # "admin", "teacher", "student"
 
     if not all([email, first_name, last_name, password, role]):
         return jsonify({'error': 'Missing data'}), 400
 
-    if role not in [1, 2, 3]:
+    if role not in ['admin', 'teacher', 'student']:
         return jsonify({'error': 'Invalid role'}), 400
 
     if User.query.filter_by(email=email).first():
