@@ -128,13 +128,12 @@ def google_callback():
     # ตรวจสอบว่าผู้ใช้มีอยู่ในระบบหรือไม่
     user = User.query.filter_by(email=email).first()
     if not user:
-        # ถ้าไม่มี ให้สร้างผู้ใช้ใหม่ (กำหนด role เริ่มต้น เช่น student)
         user = User(
             email=email,
             first_name=first_name,
             last_name=last_name,
             password='',  # ไม่ต้องใช้ password สำหรับ OAuth
-            role='student'  # หรือให้ผู้ใช้เลือก role ผ่าน UI
+            role='student'
         )
         db.session.add(user)
         db.session.commit()
@@ -146,8 +145,8 @@ def google_callback():
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     }, app.config['SECRET_KEY'], algorithm='HS256')
 
-    # Redirect ไปหน้า Frontend พร้อม token
-    frontend_url = f'https://localhost:3000/auth/callback?token={token}'
+    # Redirect to frontend with token in query parameter
+    frontend_url = f'http://localhost:3000/auth/callback?token={token}'
     return redirect(frontend_url)
 
 if __name__ == '__main__':
