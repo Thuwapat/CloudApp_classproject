@@ -10,7 +10,7 @@ import Footer from "@/components/ui/footer";
 export default function HomePage() {
   return (
     <main className="bg-white">
-      <Navbar  />
+      <Navbar showDashboard={false} />
       <HeroSection />
       <ProjectManagementSection />
       <WorkTogetherSection />

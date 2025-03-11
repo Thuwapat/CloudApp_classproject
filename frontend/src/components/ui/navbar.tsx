@@ -1,7 +1,7 @@
 // components/Navbar.tsx
 import Link from "next/link";
 
-const Navbar = () => {
+const Navbar = ({ showDashboard = false }: { showDashboard?: boolean }) => {
   return (
     <header className="fixed top-3 left-2 right-2 rounded-2xl px-4 py-3 shadow-2xl bg-white z-50">
       <div className="flex items-center justify-between">
@@ -26,9 +26,11 @@ const Navbar = () => {
         </nav>
         
         <div className="space-x-4">
-        <Link href="/dashboard">
-            <button className="text-[#302858FF] hover:text-[#E06A6EFF]">Dashboard</button>
-          </Link>
+          {showDashboard && (
+            <Link href="/dashboard" className="hover:text-[#E08184FF]">
+              Dashboard
+            </Link>
+          )}
           <Link href="/signin">
             <button className="text-[#302858FF] hover:text-[#E06A6EFF]">Sign in</button>
           </Link>

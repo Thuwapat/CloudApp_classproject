@@ -3,19 +3,19 @@ import Link from "next/link";
 import React from "react";
 import Image from "next/image";
 import { useState } from "react";
-
-// แยก Input, Label, Button ไว้ใน components/ui/
 import Label from "@/components/ui/label";
 import Input from "@/components/ui/input";
 import api from "@/utility/axiosInstance";
 import Button from "@/components/ui/button";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState("");
+  const [data, setData] = useState<any>(null); // Store response data
+  const router = useRouter(); // Initialize useRouter
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,8 +24,20 @@ export default function LoginPage() {
 
     try {
       const response = await api.post("/login", { email, password });
-      setData(response.data);
-      localStorage.setItem("token", response.data.token);
+      const loginData = response.data;
+      setData(loginData);
+      localStorage.setItem("token", loginData.token);
+
+      // Check the user's role and redirect
+      const userRole = loginData.user.role; // Assuming role is in user object
+      if (userRole === "student") {
+        router.push("/"); // Redirect to Homepage
+      } else if (userRole === "teacher" || userRole === "admin") {
+        router.push("/dashboard"); // Redirect to Dashboard
+      } else {
+        setError("Unknown role detected");
+      }
+
       alert("Login successful");
     } catch (error: any) {
       console.error("Login error:", error);
@@ -89,8 +101,9 @@ export default function LoginPage() {
             <Button
               className="bg-[#221C3FFF] w-full rounded-md py-2 hover:bg-[#16122BFF]"
               type="submit"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
 
@@ -107,14 +120,16 @@ export default function LoginPage() {
             <Button
               className="flex-1 rounded border py-2 bg-[#E08184FF] text-sm hover:bg-[#E06A6EFF]"
               onClick={handleGoogleLogin}
+              disabled={loading}
             >
-              Sign in with Google
+              {loading ? "Loading..." : "Sign in with Google"}
             </Button>
 
             {/* SSO KKU Button (existing) */}
             <Button
               className="flex-1 rounded border py-2 bg-[#E08184FF] text-sm hover:bg-[#E06A6EFF]"
-              onClick={() => alert("SSO KKU login not implemented yet")} // Placeholder
+              onClick={() => alert("SSO KKU login not implemented yet")}
+              disabled={loading}
             >
               SSO KKU
             </Button>
@@ -139,6 +154,9 @@ export default function LoginPage() {
               Privacy Policy
             </Link>.
           </p>
+
+          {/* Error Message */}
+          {error && <p className="mt-4 text-center text-sm text-red-500">{error}</p>}
         </div>
 
         {/* โซนขวา (รูปภาพ) */}
