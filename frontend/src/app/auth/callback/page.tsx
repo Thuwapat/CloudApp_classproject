@@ -1,23 +1,33 @@
 "use client";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function CallbackPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get("token");
-
     if (token) {
+      // Store the token
       localStorage.setItem("token", token);
-      alert("Google Sign in successful");
-      router.push("/"); // Redirect to home or dashboard
-    } else {
-      alert("No token found in callback");
-      router.push("/login");
-    }
-  }, [router]);
 
-  return <div>Processing Google login...</div>;
+      // Decode the token to get the role (optional, for immediate use)
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+      const role = decoded.role;
+
+      // Redirect based on role
+      if (role === "student") {
+        router.push("/");
+      } else if (role === "teacher" || role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/login?error=Unknown role");
+      }
+    } else {
+      router.push("/login?error=No token provided");
+    }
+  }, [token, router]);
+
+  return <div>Processing authentication...</div>; // Loading state
 }
