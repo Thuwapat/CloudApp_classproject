@@ -3,10 +3,11 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
+// Updated dummy data with roles
 const dummyLogs = [
-  { id: 1, user: "John Doe", room: "Room 101", time: "2025-03-10 09:15", method: "Fingerprint", photo: "/dummy-photo1.jpg" },
-  { id: 2, user: "Jane Smith", room: "Room 102", time: "2025-03-10 09:30", method: "Student Card", photo: "/dummy-photo2.jpg" },
-  { id: 3, user: "Admin User", room: "Room 103", time: "2025-03-10 10:00", method: "Admin Command", photo: "/dummy-photo3.jpg" },
+  { id: 1, user: "John Doe", role: "Student", room: "Room 101", time: "2025-03-10 09:15", photo: "/dummy-photo1.jpg" },
+  { id: 2, user: "Jane Smith", role: "Teacher", room: "Room 102", time: "2025-03-10 09:30", photo: "/dummy-photo2.jpg" },
+  { id: 3, user: "Admin User", role: "Admin", room: "Room 103", time: "2025-03-10 10:00", photo: "/dummy-photo3.jpg" },
 ];
 
 const Logs = () => {
@@ -34,10 +35,10 @@ const Logs = () => {
             />
             <div className="flex-1">
               <p className="text-[#221C3FFF] font-medium">
-                {log.user} accessed {log.room}
+                {log.user} ({log.role}) accessed {log.room}
               </p>
               <p className="text-sm text-[#302858FF]">
-                {log.time} via {log.method}
+                {log.time}
               </p>
             </div>
           </li>
