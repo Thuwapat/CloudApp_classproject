@@ -1,0 +1,52 @@
+import Image from "next/image";
+import Link from "next/link";
+
+const Sidebar = () => {
+  return (
+    <aside className="w-64 bg-white h-screen p-6 shadow-md">
+      {/* Logo */}
+      <div className="flex items-center mb-8">
+        <Image src="/logo.png" alt="Logo" width={32} height={32} />
+        <h1 className="ml-2 text-xl font-bold text-[#221C3FFF]">COE Access</h1>
+      </div>
+
+      {/* User Info */}
+      <div className="flex items-center mb-8">
+        <Image
+          src="/dummy-photo1.jpg"
+          alt="User"
+          width={48}
+          height={48}
+          className="rounded-full"
+        />
+        <div className="ml-3">
+          <h2 className="text-lg font-semibold text-[#221C3FFF]">John Doe</h2>
+          <p className="text-sm text-[#302858FF]">john.doe@email.com</p>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav>
+        <ul className="space-y-4">
+          <li>
+            <Link href="/dashboard" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2">🏠</span> Dashboard
+            </Link>
+          </li>
+          <li>
+            <Link href="/analytics" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2">📊</span> Analytics
+            </Link>
+          </li>
+          <li>
+            <Link href="/settings" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2">⚙️</span> Settings
+            </Link>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+  );
+};
+
+export default Sidebar;
