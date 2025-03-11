@@ -1,28 +1,48 @@
-"use client"; // ถ้าใช้ Next.js 13+ App Router
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 
-
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
-  const [fristName, setFristName] = useState("");
-  const [lastname , setLastname] =useState("")
+  const [firstName, setFirstName] = useState(""); // Corrected typo
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [newsletter, setNewsletter] = useState(false);
   const [agreePolicy, setAgreePolicy] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: ส่งข้อมูลไปยัง Backend หรือ API เพื่อลงทะเบียน
-    alert("Register clicked!");
+    // Send data to backend
+    const response = await fetch("https://localhost:5000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        password,
+        role: "student", // Default role; you can add a role selector later
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("Registration successful! Please log in.");
+      // Redirect to login page or handle success
+      window.location.href = "/login";
+    } else {
+      alert(`Registration failed: ${data.error}`);
+    }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f4e2dc] p-4 ">
+    <div className="flex min-h-screen items-center justify-center bg-[#f4e2dc] p-4">
       <div className="mx-auto flex w-full max-w-5xl flex-col-reverse items-center gap-8 md:flex-row md:gap-12">
         {/* Left side: Form */}
         <div className="w-full rounded-lg bg-white p-6 shadow md:w-1/2">
@@ -43,7 +63,6 @@ export default function RegisterPage() {
               <Input
                 type="email"
                 required
-                //className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 placeholder="name@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -57,26 +76,23 @@ export default function RegisterPage() {
               <Input
                 type="text"
                 required
-                //className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                placeholder="Bonnie "
-                value={fristName}
-                onChange={(e) => setFristName(e.target.value)}
+                placeholder="Bonnie"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
               />
             </div>
 
             <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Last Name
               </label>
               <Input
-              type="text"
-              required
-              placeholder="Green"
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              
+                type="text"
+                required
+                placeholder="Green"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
               />
-
             </div>
 
             <div>
@@ -86,7 +102,6 @@ export default function RegisterPage() {
               <Input
                 type="password"
                 required
-               // className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -94,7 +109,7 @@ export default function RegisterPage() {
             </div>
 
             {/* Checkbox & Terms */}
-            <div className="mt-4  space-y-2 text-sm text-gray-500">
+            <div className="mt-4 space-y-2 text-sm text-gray-500">
               <div>
                 <input
                   id="newsletter"
@@ -116,7 +131,6 @@ export default function RegisterPage() {
                   className="mr-2 h-4 w-4 rounded border-gray-300"
                   required
                 />
-                
                 <label htmlFor="policy">
                   By signing up, you are creating a Flowbite account and you agree to
                   Flowbite&apos;s{" "}
@@ -145,12 +159,10 @@ export default function RegisterPage() {
         {/* Right side: Illustration with animation */}
         <div className="flex w-full items-center justify-center md:w-1/2">
           <Image
-             src="/image_room.svg"
+            src="/image_room.svg"
             alt="Register Illustration"
             width={800}
-            height={400
-
-            }
+            height={400}
             className="transition-transform duration-500 hover:scale-105 hover:rotate-1"
           />
         </div>
