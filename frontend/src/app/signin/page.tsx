@@ -5,10 +5,9 @@ import Image from "next/image";
 import { useState } from "react";
 import Label from "@/components/ui/label";
 import Input from "@/components/ui/input";
-import api from "@/utility/axiosInstance";
+import { apiAuth } from "@/utility/axiosInstance";
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation"; // Import useRouter
-import axios from "axios";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -24,7 +23,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await api.post("/login", { email, password });
+      const response = await apiAuth.post("/login", { email, password });
       const loginData = response.data;
       setData(loginData);
       localStorage.setItem("token", loginData.token);
@@ -53,7 +52,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/auth/google"); // Call the backend Google OAuth endpoint
+      const response = await apiAuth.get("/auth/google"); // Call the backend Google OAuth endpoint
       window.location.href = response.data.authorization_url; // Redirect to Google auth URL
     } catch (error: any) {
       console.error("Google Login error:", error);

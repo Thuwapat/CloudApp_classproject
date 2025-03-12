@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import api from '../../utility/axiosInstance';
+import { apiAuth } from '../../utility/axiosInstance';
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,7 +8,7 @@ export default async function handler(
   if (req.method === 'POST') {
     try {
         const { email, password } = req.body; // รับข้อมูล email และ password จาก request body
-        const { data } = await api.post('/login', { email, password });
+        const { data } = await apiAuth.post('/login', { email, password });
       res.status(200).json(data);
     } catch (error) {
       res.status(500).json({ message: error });

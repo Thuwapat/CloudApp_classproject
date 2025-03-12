@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import api from "@/utility/axiosInstance";
+import { apiAuth } from "@/utility/axiosInstance";
 
 export default function CallbackPage() {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function CallbackPage() {
           localStorage.setItem("token", token);
 
           // เรียก API เพื่อดึงข้อมูลผู้ใช้จาก backend
-          const response = await api.get("/protected", {
+          const response = await apiAuth.get("/protected", {
             headers: {
               Authorization: `Bearer ${token}`,
             },

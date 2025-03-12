@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt as pyjwt
 import datetime
 from flask_cors import CORS
-from models import db, User
+from models import db, User 
 import os
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import LegacyApplicationClient
@@ -116,7 +116,27 @@ def protected():
         return jsonify({'error': 'Token has expired'}), 401
     except pyjwt.InvalidTokenError:
         return jsonify({'error': 'Invalid token'}), 401
+    
+@app.route('/validate-user', methods=['POST'])
+def validate_user():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing'}), 401
 
+    try:
+        data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(data['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        return jsonify({
+            'user_id': user.id,
+            'role': user.role,
+            'first_name': user.first_name,
+            'email': user.email
+        }), 200
+    except pyjwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token'}), 401
+    
 # Start Google OAuth 2.0 process
 @app.route('/auth/google', methods=['GET'])
 def google_login():
@@ -171,4 +191,4 @@ def google_callback():
     return redirect(frontend_url)
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5000, ssl_context=('/app/cert.pem', '/app/key.pem'))
+    app.run(debug=True, host='0.0.0.0', port=5000, ssl_context=('/app/authen/certificates/cert.pem', '/app/authen/certificates/key.pem'))
