@@ -35,7 +35,7 @@ const Logs = () => {
             />
             <div className="flex-1">
               <p className="text-[#221C3FFF] font-medium">
-                {log.user} ({log.role}) accessed {log.room}
+                {log.user} ({log.role}) access {log.room}
               </p>
               <p className="text-sm text-[#302858FF]">
                 {log.time}

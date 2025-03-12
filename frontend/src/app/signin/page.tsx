@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Label from "@/components/ui/label";
 import Input from "@/components/ui/input";
-import api from "@/utility/axiosInstance";
+import { apiAuth } from "@/utility/axiosInstance";
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation"; // Import useRouter
 
@@ -16,18 +16,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null); // Store response data
   const router = useRouter(); // Initialize useRouter
-
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await api.post("/login", { email, password });
+      const response = await apiAuth.post("/login", { email, password });
       const loginData = response.data;
       setData(loginData);
       localStorage.setItem("token", loginData.token);
-
+      localStorage.setItem("user", JSON.stringify(loginData.user));
+      
       // Check the user's role and redirect
       const userRole = loginData.user.role; // Assuming role is in user object
       if (userRole === "student") {
@@ -51,7 +52,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const response = await api.get("/auth/google"); // Call the backend Google OAuth endpoint
+      const response = await apiAuth.get("/auth/google"); // Call the backend Google OAuth endpoint
       window.location.href = response.data.authorization_url; // Redirect to Google auth URL
     } catch (error: any) {
       console.error("Google Login error:", error);

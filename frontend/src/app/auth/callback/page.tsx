@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { apiAuth } from "@/utility/axiosInstance";
 
 export default function CallbackPage() {
   const router = useRouter();
@@ -8,26 +9,48 @@ export default function CallbackPage() {
   const token = searchParams.get("token");
 
   useEffect(() => {
-    if (token) {
-      // Store the token
-      localStorage.setItem("token", token);
+    const fetchUserData = async () => {
+      if (token) {
+        try {
+          // เก็บ token
+          localStorage.setItem("token", token);
 
-      // Decode the token to get the role (optional, for immediate use)
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      const role = decoded.role;
+          // เรียก API เพื่อดึงข้อมูลผู้ใช้จาก backend
+          const response = await apiAuth.get("/protected", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-      // Redirect based on role
-      if (role === "student") {
-        router.push("/");
-      } else if (role === "teacher" || role === "admin") {
-        router.push("/dashboard");
+          const userData = response.data;
+          // เก็บ user data ใน localStorage
+          localStorage.setItem("user", JSON.stringify({
+            id: userData.user_id,
+            role: userData.role,
+            // ดึง first_name จาก backend (ต้องเพิ่มใน /protected response)
+            first_name: userData.first_name || "User", // หาก backend ไม่ส่ง first_name มา
+            email: userData.email || "email@example.com",
+          }));
+
+          // Redirect ตาม role
+          if (userData.role === "student") {
+            router.push("/");
+          } else if (userData.role === "teacher" || userData.role === "admin") {
+            router.push("/dashboard");
+          } else {
+            router.push("/login?error=Unknown role");
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          router.push("/login?error=Failed to fetch user data");
+        }
       } else {
-        router.push("/login?error=Unknown role");
+        router.push("/login?error=No token provided");
       }
-    } else {
-      router.push("/login?error=No token provided");
-    }
+    };
+
+    fetchUserData();
   }, [token, router]);
 
-  return <div>Processing authentication...</div>; // Loading state
+  return <div>Processing authentication...</div>;
 }

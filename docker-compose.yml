@@ -15,17 +15,15 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  backend:
+  authen_backend:
     build:
-      context: ./Backend      # โฟลเดอร์ที่มี Dockerfile สำหรับ Flask
-      dockerfile: Dockerfile
-    container_name: flask_backend
+      context: ./Backend    # โฟลเดอร์ที่มี Dockerfile สำหรับ Flask
+      dockerfile: authen/dockerfile.authen
+    container_name: authen_backend
     ports:
       - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
     volumes:
-    - ./certificates/cert.pem:/app/cert.pem
-    - ./certificates/key.pem:/app/key.pem
-    command: flask run --host=0.0.0.0 --port=5000 --cert=/app/cert.pem --key=/app/key.pem --debug      
+      - ./certificates:/app/authen/certificates 
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
@@ -33,6 +31,20 @@ services:
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
       - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
+  room_manage_backend:
+    build:
+      context: ./Backend
+      dockerfile: room_manage/dockerfile.room
+    container_name: room_manage_backend
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./certificates:/app/room_manage/certificates 
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
+    depends_on:
+      - db
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -45,10 +57,12 @@ services:
       - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_BASE_URL=https://localhost:5000
+      - NEXT_PUBLIC_API_AUTH_URL=https://localhost:5000  # สำหรับ Authentication
+      - NEXT_PUBLIC_API_ROOM_URL=https://localhost:5001  # สำหรับ Room Management
     command: npm run dev
     depends_on:
-      - backend
+      - authen_backend
+      - room_manage_backend
 
 volumes:
   db_data:

@@ -1,7 +1,28 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const Sidebar = () => {
+  const [firstName, setFirstName] = useState("User");
+  const [email, setEmail] = useState("email@example.com");
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      setFirstName(parsedUser.first_name || "User");
+      setEmail(parsedUser.email || "email@example.com");
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
+
   return (
     <aside className="w-64 bg-white h-screen p-6 shadow-md">
       {/* Logo */}
@@ -20,8 +41,8 @@ const Sidebar = () => {
           className="rounded-full"
         />
         <div className="ml-3">
-          <h2 className="text-lg font-semibold text-[#221C3FFF]">John Doe</h2>
-          <p className="text-sm text-[#302858FF]">john.doe@email.com</p>
+          <h2 className="text-lg font-semibold text-[#221C3FFF]">{firstName}</h2>
+          <p className="text-sm text-[#302858FF]">{email}</p>
         </div>
       </div>
 
@@ -42,6 +63,14 @@ const Sidebar = () => {
             <Link href="/settings" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
               <span className="mr-2">⚙️</span> Settings
             </Link>
+          </li>
+          <li>
+            <button
+              onClick={handleLogout}
+              className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]"
+            >
+              <span className="mr-2">🚪</span> Logout
+            </button>
           </li>
         </ul>
       </nav>
