@@ -29,6 +29,7 @@ export default function CallbackPage() {
             role: userData.role,
             // ดึง first_name จาก backend (ต้องเพิ่มใน /protected response)
             first_name: userData.first_name || "User", // หาก backend ไม่ส่ง first_name มา
+            email: userData.email || "email@example.com",
           }));
 
           // Redirect ตาม role

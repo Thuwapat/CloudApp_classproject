@@ -101,7 +101,7 @@ def protected():
 
     try:
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
-        user = User.query.get(data['user_id'])  # ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+        user = User.query.get(data['user_id'])
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
@@ -109,7 +109,8 @@ def protected():
             'message': 'Protected route',
             'user_id': data['user_id'],
             'role': data['role'],
-            'first_name': user.first_name  # เพิ่ม first_name ใน response
+            'first_name': user.first_name,
+            'email': user.email  # ต้องมี email ใน response
         }), 200
     except pyjwt.ExpiredSignatureError:
         return jsonify({'error': 'Token has expired'}), 401
