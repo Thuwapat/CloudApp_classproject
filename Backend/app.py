@@ -41,17 +41,24 @@ def register():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
     password = data.get('password')
-    role = data.get('role')
 
-    if not all([email, first_name, last_name, password, role]):
+    # Check for missing data
+    if not all([email, first_name, last_name, password]):
         return jsonify({'error': 'Missing data'}), 400
 
-    if role not in ['admin', 'teacher', 'student']:
-        return jsonify({'error': 'Invalid role'}), 400
+    # Determine role based on email domain
+    if email.endswith('@kku.ac.th'):
+        role = 'teacher'
+    elif email.endswith('@kkumail.com'):
+        role = 'student'
+    else:
+        return jsonify({'error': 'Invalid email domain'}), 403  # Reject if domain doesn't match
 
+    # Check for existing user
     if User.query.filter_by(email=email).first():
         return jsonify({'error': 'Email already exists'}), 400
 
+    # Hash the password and create new user
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
     new_user = User(email=email, first_name=first_name, last_name=last_name, password=hashed_password, role=role)
     db.session.add(new_user)
@@ -118,42 +125,36 @@ def google_callback():
     google = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=GOOGLE_REDIRECT_URI, scope=GOOGLE_SCOPE, auto_refresh_url=GOOGLE_TOKEN_URL, auto_refresh_kwargs={'client_id': GOOGLE_CLIENT_ID, 'client_secret': GOOGLE_CLIENT_SECRET})
     token = google.fetch_token(GOOGLE_TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=request.url, verify=False)
 
-    # Retrieve user info from Google
     user_info = google.get(GOOGLE_USERINFO_URL).json()
     email = user_info.get('email')
     first_name = user_info.get('given_name', 'Unknown')
     last_name = user_info.get('family_name', 'Unknown')
 
-    # Check if user already exists
     user = User.query.filter_by(email=email).first()
     if not user:
-        # Determine role based on email domain
         if email.endswith('@kku.ac.th'):
             role = 'teacher'
         elif email.endswith('@kkumail.com'):
             role = 'student'
         else:
-            return jsonify({'error': 'Invalid email domain'}), 403  # Reject if domain doesn't match
+            return jsonify({'error': 'Invalid email domain'}), 403
 
-        # Create new user with the determined role
         user = User(
             email=email,
             first_name=first_name,
             last_name=last_name,
-            password='',  # No password for OAuth
+            password='',
             role=role
         )
         db.session.add(user)
         db.session.commit()
 
-    # Generate JWT token
     token = pyjwt.encode({
         'user_id': user.id,
         'role': user.role,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     }, app.config['SECRET_KEY'], algorithm='HS256')
 
-    # Redirect to frontend with token in query parameter
     frontend_url = f'http://localhost:3000/auth/callback?token={token}'
     return redirect(frontend_url)
 

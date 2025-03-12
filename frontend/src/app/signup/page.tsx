@@ -8,7 +8,7 @@ import Button from "@/components/ui/button";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState(""); // Corrected typo
+  const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [newsletter, setNewsletter] = useState(false);
@@ -16,7 +16,6 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Send data to backend
     const response = await fetch("https://localhost:5000/register", {
       method: "POST",
       headers: {
@@ -27,15 +26,13 @@ export default function RegisterPage() {
         first_name: firstName,
         last_name: lastName,
         password,
-        role: "student", // Default role; you can add a role selector later
-      }),
+      }), // Removed role from the request
     });
 
     const data = await response.json();
     if (response.ok) {
       alert("Registration successful! Please log in.");
-      // Redirect to login page or handle success
-      window.location.href = "/login";
+      window.location.href = "/signin";
     } else {
       alert(`Registration failed: ${data.error}`);
     }
@@ -133,7 +130,7 @@ export default function RegisterPage() {
                 />
                 <label htmlFor="policy">
                   By signing up, you are creating a Flowbite account and you agree to
-                  Flowbite&apos;s{" "}
+                  Flowbite's{" "}
                   <a className="text-blue-600 hover:underline" href="#">
                     Terms of Use
                   </a>{" "}
