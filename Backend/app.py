@@ -23,7 +23,6 @@ GOOGLE_REDIRECT_URI = 'https://localhost:5000/auth/google/callback'
 GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/auth'
 GOOGLE_TOKEN_URL = 'https://accounts.google.com/o/oauth2/token'
 GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo'
-# OAuth 2.0 scope (ข้อมูลที่ต้องการจาก Google)
 GOOGLE_SCOPE = [
     'openid',
     'https://www.googleapis.com/auth/userinfo.email',
@@ -34,7 +33,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# Register endpoint (เดิม)
+# Register endpoint
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -60,7 +59,7 @@ def register():
 
     return jsonify({'message': 'User registered successfully'}), 201
 
-# Login endpoint 
+# Login endpoint
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -101,14 +100,14 @@ def protected():
     except pyjwt.InvalidTokenError:
         return jsonify({'error': 'Invalid token'}), 401
 
-# เริ่มกระบวนการ OAuth 2.0 ด้วย Google
+# Start Google OAuth 2.0 process
 @app.route('/auth/google', methods=['GET'])
 def google_login():
     google = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=GOOGLE_REDIRECT_URI, scope=GOOGLE_SCOPE, auto_refresh_url=GOOGLE_TOKEN_URL, auto_refresh_kwargs={'client_id': GOOGLE_CLIENT_ID, 'client_secret': GOOGLE_CLIENT_SECRET})
     authorization_url, state = google.authorization_url(GOOGLE_AUTH_URL, access_type='offline')
     return jsonify({'authorization_url': authorization_url})
 
-# Callback จาก Google
+# Callback from Google
 @app.route('/auth/google/callback', methods=['GET'])
 def google_callback():
     if os.getenv('FLASK_ENV') == 'development':
@@ -119,26 +118,35 @@ def google_callback():
     google = OAuth2Session(GOOGLE_CLIENT_ID, redirect_uri=GOOGLE_REDIRECT_URI, scope=GOOGLE_SCOPE, auto_refresh_url=GOOGLE_TOKEN_URL, auto_refresh_kwargs={'client_id': GOOGLE_CLIENT_ID, 'client_secret': GOOGLE_CLIENT_SECRET})
     token = google.fetch_token(GOOGLE_TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=request.url, verify=False)
 
-    # ดึงข้อมูลผู้ใช้จาก Google
+    # Retrieve user info from Google
     user_info = google.get(GOOGLE_USERINFO_URL).json()
     email = user_info.get('email')
     first_name = user_info.get('given_name', 'Unknown')
     last_name = user_info.get('family_name', 'Unknown')
 
-    # ตรวจสอบว่าผู้ใช้มีอยู่ในระบบหรือไม่
+    # Check if user already exists
     user = User.query.filter_by(email=email).first()
     if not user:
+        # Determine role based on email domain
+        if email.endswith('@kku.ac.th'):
+            role = 'teacher'
+        elif email.endswith('@kkumail.com'):
+            role = 'student'
+        else:
+            return jsonify({'error': 'Invalid email domain'}), 403  # Reject if domain doesn't match
+
+        # Create new user with the determined role
         user = User(
             email=email,
             first_name=first_name,
             last_name=last_name,
-            password='',  # ไม่ต้องใช้ password สำหรับ OAuth
-            role='student'
+            password='',  # No password for OAuth
+            role=role
         )
         db.session.add(user)
         db.session.commit()
 
-    # สร้าง JWT token
+    # Generate JWT token
     token = pyjwt.encode({
         'user_id': user.id,
         'role': user.role,

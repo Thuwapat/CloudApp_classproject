@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import api from "@/utility/axiosInstance";
 
 export default function CallbackPage() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function CallbackPage() {
       // Store the token
       localStorage.setItem("token", token);
 
-      // Decode the token to get the role (optional, for immediate use)
+      // Decode the token to get the role
       const decoded = JSON.parse(atob(token.split(".")[1]));
       const role = decoded.role;
 
@@ -29,5 +30,5 @@ export default function CallbackPage() {
     }
   }, [token, router]);
 
-  return <div>Processing authentication...</div>; // Loading state
+  return <div>Processing authentication...</div>;
 }
