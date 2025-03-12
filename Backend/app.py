@@ -101,7 +101,16 @@ def protected():
 
     try:
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
-        return jsonify({'message': 'Protected route', 'user_id': data['user_id'], 'role': data['role']}), 200
+        user = User.query.get(data['user_id'])  # ดึงข้อมูลผู้ใช้จากฐานข้อมูล
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        return jsonify({
+            'message': 'Protected route',
+            'user_id': data['user_id'],
+            'role': data['role'],
+            'first_name': user.first_name  # เพิ่ม first_name ใน response
+        }), 200
     except pyjwt.ExpiredSignatureError:
         return jsonify({'error': 'Token has expired'}), 401
     except pyjwt.InvalidTokenError:
@@ -152,6 +161,8 @@ def google_callback():
     token = pyjwt.encode({
         'user_id': user.id,
         'role': user.role,
+        'first_name': user.first_name, 
+        'last_name': user.last_name,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     }, app.config['SECRET_KEY'], algorithm='HS256')
 

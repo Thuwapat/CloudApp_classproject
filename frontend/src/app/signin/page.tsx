@@ -8,6 +8,7 @@ import Input from "@/components/ui/input";
 import api from "@/utility/axiosInstance";
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation"; // Import useRouter
+import axios from "axios";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,7 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null); // Store response data
   const router = useRouter(); // Initialize useRouter
-
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +28,8 @@ export default function LoginPage() {
       const loginData = response.data;
       setData(loginData);
       localStorage.setItem("token", loginData.token);
-
+      localStorage.setItem("user", JSON.stringify(loginData.user));
+      
       // Check the user's role and redirect
       const userRole = loginData.user.role; // Assuming role is in user object
       if (userRole === "student") {
