@@ -1,19 +1,10 @@
 import React from "react";
-import { useRouter } from "next/navigation";
 
 interface DashboardHeaderProps {
   firstName: string;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ firstName }) => {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/");
-  };
-
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     day: "numeric",
@@ -38,12 +29,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ firstName }) => {
         </div>
         <button className="bg-[#E08184FF] text-white px-4 py-2 rounded-full hover:bg-[#E06A6EFF]">
           Refresh Data
-        </button>
-        <button
-          onClick={handleLogout}
-          className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600"
-        >
-          Logout
         </button>
       </div>
     </header>
