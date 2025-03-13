@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/room_mgmt_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/room_req_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-for-room-service')
 
@@ -151,4 +151,4 @@ def reject_request(request_id):
         return jsonify({'error': 'Invalid token'}), 401
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('/app/room_manage/certificates/cert.pem', '/app/room_manage/certificates/key.pem'))
+    app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('/app/room_request/certificates/cert.pem', '/app/room_request/certificates/key.pem'))
