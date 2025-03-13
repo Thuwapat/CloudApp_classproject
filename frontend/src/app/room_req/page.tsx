@@ -29,7 +29,7 @@ export default function RequestRoomPage() {
   }, []);
 
   const handleBook = (roomId: number) => {
-    router.push(`/req_form?roomId=${roomId}`);
+    router.push(`/room_req/req_form?roomId=${roomId}`);
   };
 
   if (loading) return <div className="p-10">Loading...</div>;
