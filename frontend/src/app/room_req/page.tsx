@@ -29,7 +29,7 @@ export default function RequestRoomPage() {
   }, []);
 
   const handleBook = (roomId: number) => {
-    router.push(`/request-room/book?roomId=${roomId}`);
+    router.push(`/req_form?roomId=${roomId}`);
   };
 
   if (loading) return <div className="p-10">Loading...</div>;
@@ -65,7 +65,7 @@ export default function RequestRoomPage() {
               onClick={() => handleBook(room.id)}
               className="mt-4 bg-black text-white py-2 px-6 rounded hover:bg-gray-800 transition"
             >
-              BOOK
+              Request
             </button>
           </div>
         ))}
