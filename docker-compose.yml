@@ -14,6 +14,8 @@ services:
       - "5432:5432"
     volumes:
       - auth_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
   room_req_db:
     image: postgres:13
     container_name: my_room_req_db
@@ -26,7 +28,8 @@ services:
       - "5433:5432"
     volumes:
       - room_req_db_data:/var/lib/postgresql/data
-
+    networks:
+      - app-network
   authen_backend:
     build:
       context: ./Backend    # โฟลเดอร์ที่มี Dockerfile สำหรับ Flask
@@ -56,7 +59,7 @@ services:
       - ./certificates:/app/room_request/certificates 
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
+      - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
     depends_on:
       - room_req_db
       - authen_backend

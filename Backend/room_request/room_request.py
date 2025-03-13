@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
 
 # ตั้งค่า database URL สำหรับ Room Request (แยกจาก Authentication)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_ROOM_URL', 'postgresql://myuser:mypass@localhost:5432/room_req_db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_ROOM_URL', 'postgresql://myuser:mypass@room_req_db:5432/room_req_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 
@@ -77,6 +77,16 @@ def get_requests():
 
     requests = Request.query.all()
     return jsonify([request.to_dict() for request in requests]), 200
+
+# Get available rooms
+@app.route('/rooms', methods=['GET'])
+def get_rooms():
+    # ตัวอย่างข้อมูลห้อง (ควรดึงจาก database จริง)
+    sample_rooms = [
+        {'id': 1, 'meetings_today': 3},
+        {'id': 2, 'meetings_today': 2},
+    ]
+    return jsonify(sample_rooms), 200
 
 # Approve/Reject request
 @app.route('/requests/<int:request_id>', methods=['PUT'])
