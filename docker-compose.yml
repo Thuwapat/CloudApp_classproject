@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: room_req_db
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - room_req_db_data:/var/lib/postgresql/data
 
@@ -43,6 +43,8 @@ services:
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
       - auth_db                   # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
+    networks:
+      - app-network
   room_req_backend:
     build:
       context: ./Backend
@@ -57,6 +59,9 @@ services:
       - DATABASE_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
     depends_on:
       - room_req_db
+      - authen_backend
+    networks:
+      - app-network
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -75,9 +80,15 @@ services:
     depends_on:
       - authen_backend
       - room_req_backend
+    networks:
+      - app-network
 
 volumes:
   auth_db_data:
   room_req_db_data:
   frontend_node_modules:  # เพิ่ม Named Volume สำหรับ node_modules
   frontend_next:  # เพิ่ม Named Volume สำหรับ .next
+
+networks:
+  app-network:
+    driver: bridge
