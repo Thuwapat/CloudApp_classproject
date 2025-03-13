@@ -15,7 +15,7 @@ CD เข้า backend
 `pip install -r requirements.txt`
 
 ## Enter Docker DB
-docker exec -it my_postgres_db psql -U myuser -d mydb
+docker exec -it my_auth_db psql -U myuser -d auth_db
 
 ## Check users table
 SELECT * FROM users;

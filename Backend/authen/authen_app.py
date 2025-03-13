@@ -12,7 +12,7 @@ from oauthlib.oauth2 import LegacyApplicationClient
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/mydb')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/auth_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
 
