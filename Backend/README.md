@@ -13,3 +13,9 @@ CD เข้า backend
 
 ## 3. ติดตั้ง Dependencies
 `pip install -r requirements.txt`
+
+## Enter Docker DB
+docker exec -it my_postgres_db psql -U myuser -d mydb
+
+## Check users table
+SELECT * FROM users;
