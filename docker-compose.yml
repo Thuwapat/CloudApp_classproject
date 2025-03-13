@@ -2,18 +2,30 @@
 version: "3.8"
 name: COE_Room_AcessControl
 services:
-  db:
+  auth_db:
     image: postgres:13
-    container_name: my_postgres_db
+    container_name: my_auth_db
     restart: always
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypass
-      POSTGRES_DB: mydb
+      POSTGRES_DB: auth_db
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - auth_db_data:/var/lib/postgresql/data
+  room_mgmt_db:
+    image: postgres:13
+    container_name: my_room_mgmt_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+      POSTGRES_DB: room_mgmt_db
+    ports:
+      - "5433:5433"
+    volumes:
+      - room_mgmt_db_data:/var/lib/postgresql/data
 
   authen_backend:
     build:
@@ -26,11 +38,11 @@ services:
       - ./certificates:/app/authen/certificates 
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
-      - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
+      - DATABASE_URL=postgresql://myuser:mypass@auth_db:5432/auth_db
       - GOOGLE_CLIENT_ID=1033311153846-985omsfscb3beu6u42c0qpo6k6m5vheg.apps.googleusercontent.com
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
-      - db                    # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
+      - auth_db                   # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
   room_manage_backend:
     build:
       context: ./Backend
@@ -42,9 +54,9 @@ services:
       - ./certificates:/app/room_manage/certificates 
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://myuser:mypass@db:5432/mydb
+      - DATABASE_URL=postgresql://myuser:mypass@room_mgmt_db:5432/room_mgmt_db
     depends_on:
-      - db
+      - room_mgmt_db
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -65,6 +77,7 @@ services:
       - room_manage_backend
 
 volumes:
-  db_data:
+  auth_db_data:
+  room_mgmt_db_data:
   frontend_node_modules:  # เพิ่ม Named Volume สำหรับ node_modules
   frontend_next:  # เพิ่ม Named Volume สำหรับ .next
