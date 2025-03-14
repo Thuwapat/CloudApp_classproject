@@ -45,10 +45,10 @@ export default function BookRoomPage() {
 
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Book Room {roomId}</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Request Room {roomId}</h1>
 
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md max-w-lg mx-auto">
-        <div className="mb-4">
+        <div className="mb-4 text-gray-800">
           <label className="block text-sm font-medium mb-1">Room ID</label>
           <input
             type="number"
@@ -59,7 +59,7 @@ export default function BookRoomPage() {
             disabled
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 text-gray-800">
           <label className="block text-sm font-medium mb-1">Start Time</label>
           <input
             type="datetime-local"
@@ -70,7 +70,7 @@ export default function BookRoomPage() {
             required
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 text-gray-800">
           <label className="block text-sm font-medium mb-1">End Time</label>
           <input
             type="datetime-local"
@@ -81,7 +81,7 @@ export default function BookRoomPage() {
             required
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 text-gray-800">
           <label className="block text-sm font-medium mb-1">Reason</label>
           <textarea
             name="reason"
