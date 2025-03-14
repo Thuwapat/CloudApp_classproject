@@ -45,6 +45,7 @@ const Graph = () => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // ❗ Fix graph scaling issue
     plugins: {
       legend: {
         position: "top" as const,
@@ -57,9 +58,11 @@ const Graph = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md">
+    <div className="p-6 bg-white rounded-xl shadow-md w-full h-full flex justify-center items-center">
       <h3 className="text-xl font-semibold text-[#221C3FFF] mb-4">Statistics</h3>
-      <Bar data={chartData} options={chartOptions} />
+      <div className="w-full h-full">
+        <Bar data={chartData} options={chartOptions} />
+      </div>
     </div>
   );
 };
