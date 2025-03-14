@@ -145,6 +145,44 @@ def validate_user():
         print(f"Unexpected error: {e}")
         return jsonify({'error': 'Server error'}), 500
 
+@app.route('/validate-user-by-id', methods=['POST'])
+def validate_user_by_id():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    if not user_id:
+        print("No user_id provided in /validate-user-by-id")
+        return jsonify({'error': 'User ID is missing'}), 400
+
+    token = request.headers.get('Authorization')
+    if not token:
+        print("No token provided in /validate-user-by-id")
+        return jsonify({'error': 'Token is missing'}), 401
+
+    try:
+        print(f"Decoding token for /validate-user-by-id: {token[:10]}...")
+        data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
+        print(f"Decoded token data: {data}")
+        if data.get('role') not in ['admin', 'teacher']:
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        user = User.query.get(user_id)
+        if not user:
+            print(f"User not found: {user_id}")
+            return jsonify({'error': 'User not found'}), 404
+        return jsonify({
+            'user_id': user.id,
+            'role': user.role,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+        }), 200
+    except pyjwt.InvalidTokenError as e:
+        print(f"Invalid token error: {e}")
+        return jsonify({'error': 'Invalid token'}), 401
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({'error': 'Server error'}), 500
+    
 # Start Google OAuth 2.0 process
 @app.route('/auth/google', methods=['GET'])
 def google_login():

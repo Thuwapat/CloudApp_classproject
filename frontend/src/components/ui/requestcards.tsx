@@ -10,6 +10,7 @@ interface Request {
   end_time: string;
   reason: string;
   status: string;
+  requester_name: string; 
 }
 
 export default function RequestCards() {
@@ -17,25 +18,27 @@ export default function RequestCards() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const fetchRequests = async () => {
+    try {
+      const response = await apiRoom.get('/requests');
+      setRequests(response.data);
+    } catch (err) {
+      setError('Failed to load requests');
+      console.error('Error fetching requests:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await apiRoom.get('/requests'); // สมมติ endpoint /requests
-        setRequests(response.data);
-      } catch (err) {
-        setError('Failed to load requests');
-        console.error('Error fetching requests:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchRequests();
   }, []);
 
   const handleApprove = async (requestId: number) => {
     try {
       await apiRoom.put(`/requests/${requestId}/approve`);
-      setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'Approved' } : req));
+      // รีเฟรชข้อมูลจาก backend
+      fetchRequests();
     } catch (err) {
       setError('Failed to approve request');
       console.error('Error approving request:', err);
@@ -45,7 +48,8 @@ export default function RequestCards() {
   const handleReject = async (requestId: number) => {
     try {
       await apiRoom.put(`/requests/${requestId}/reject`);
-      setRequests(requests.map(req => req.id === requestId ? { ...req, status: 'Rejected' } : req));
+      // รีเฟรชข้อมูลจาก backend
+      fetchRequests();
     } catch (err) {
       setError('Failed to reject request');
       console.error('Error rejecting request:', err);
@@ -68,6 +72,7 @@ export default function RequestCards() {
               <p className="text-gray-600">Start: {new Date(request.start_time).toLocaleString()}</p>
               <p className="text-gray-600">End: {new Date(request.end_time).toLocaleString()}</p>
               <p className="text-gray-600">Reason: {request.reason}</p>
+              <p className="text-gray-600">Requester: {request.requester_name}</p> {/* แสดงชื่อผู้ขอ */}
               <p className="text-gray-600">Status: {request.status}</p>
               {request.status === 'Pending' && (
                 <div className="mt-2 space-x-2">

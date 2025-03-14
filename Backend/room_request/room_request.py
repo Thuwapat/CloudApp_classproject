@@ -49,6 +49,24 @@ def validate_token(token):
         print(f"Error validating token: {e}")
         return None
 
+def validate_token_for_user(user_id):
+    auth_url = os.getenv('AUTH_SERVICE_URL', 'https://authen_backend:5000')
+    try:
+        response = requests.post(
+            f'{auth_url}/validate-user-by-id',
+            json={'user_id': user_id},
+            headers={'Authorization': 'Bearer <some-admin-token>'},  
+            verify=False,
+            timeout=5
+        )
+       # print(f"Response from validate_token_for_user: Status {response.status_code}, Text: {response.text}")
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except requests.RequestException as e:
+        print(f"Error validating user: {e}")
+        return None
+    
 # Create room request
 @app.route('/request', methods=['POST'])
 def create_request():
@@ -98,14 +116,27 @@ def get_requests():
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
+    print(f"Received token in /requests: {token[:10]}...")
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
     if user_data.get('role') not in ['teacher', 'admin']:
         return jsonify({'error': 'Unauthorized: Not a teacher or admin'}), 403
 
-    requests = Request.query.all()
-    return jsonify([request.to_dict() for request in requests]), 200
+    # ดึงเฉพาะคำขอที่มีสถานะ "Pending"
+    pending_requests = Request.query.filter_by(status='Pending').all()
+    requests_data = []
+    for req in pending_requests:
+        request_dict = req.to_dict()
+        # ดึงข้อมูลชื่อผู้ขอ
+        user_info = validate_token_for_user(req.student_id)
+        if user_info:
+            request_dict['requester_name'] = user_info.get('first_name', 'Unknown') + ' ' + user_info.get('last_name', 'Unknown')
+        else:
+            request_dict['requester_name'] = 'Unknown'
+        requests_data.append(request_dict)
+
+    return jsonify(requests_data), 200
 
 # Get available rooms
 @app.route('/rooms', methods=['GET'])
