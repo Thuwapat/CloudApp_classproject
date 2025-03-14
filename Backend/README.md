@@ -16,6 +16,8 @@ CD เข้า backend
 
 ## Enter Docker DB
 docker exec -it my_auth_db psql -U myuser -d auth_db
+docker exec -it my_room_req_db psql -U myuser -d room_req_db
 
 ## Check users table
 SELECT * FROM users;
+SELECT * FROM requests;

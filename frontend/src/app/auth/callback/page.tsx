@@ -34,7 +34,7 @@ export default function CallbackPage() {
 
           // Redirect ตาม role
           if (userData.role === "student") {
-            router.push("/");
+            router.push("/room_req");
           } else if (userData.role === "teacher" || userData.role === "admin") {
             router.push("/dashboard");
           } else {
