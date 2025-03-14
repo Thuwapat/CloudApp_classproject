@@ -65,6 +65,12 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
+            <Link href="/addroom" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2">⚙️</span> add Room
+            </Link>
+          </li>
+          
+          <li>
             <button
               onClick={handleLogout}
               className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]"

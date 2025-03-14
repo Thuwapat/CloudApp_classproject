@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
+import Navbar from "@/components/ui/navbar";
 import RoomCards from "@/components/ui/roomcards";
 import Logs from "@/components/ui/logs";
 import Graph from "@/components/ui/graph";
@@ -57,7 +58,8 @@ export default function Dashboard() {
       <Sidebar />
       <div className="flex-1">
         {/* ใช้ DashboardHeader และส่ง firstName */}
-        <DashboardHeader firstName={firstName} />
+        <DashboardHeader firstName={firstName}/>
+        
         <main className="p-6">
           <RoomCards />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
