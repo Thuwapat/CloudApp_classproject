@@ -1,6 +1,6 @@
 # Database 
 version: "3.8"
-name: COE_Room_AcessControl
+name: coe_room_acesscontrol
 services:
   auth_db:
     image: postgres:13
