@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiRoom } from '@/utility/axiosInstance';
+import { apiReq } from '@/utility/axiosInstance';
 
 interface Request {
   id: number;
@@ -20,7 +20,7 @@ export default function RequestCards() {
 
   const fetchRequests = async () => {
     try {
-      const response = await apiRoom.get('/requests');
+      const response = await apiReq.get('/requests');
       setRequests(response.data);
     } catch (err) {
       setError('Failed to load requests');
@@ -36,7 +36,7 @@ export default function RequestCards() {
 
   const handleApprove = async (requestId: number) => {
     try {
-      await apiRoom.put(`/requests/${requestId}/approve`);
+      await apiReq.put(`/requests/${requestId}/approve`);
       // รีเฟรชข้อมูลจาก backend
       fetchRequests();
     } catch (err) {
@@ -47,7 +47,7 @@ export default function RequestCards() {
 
   const handleReject = async (requestId: number) => {
     try {
-      await apiRoom.put(`/requests/${requestId}/reject`);
+      await apiReq.put(`/requests/${requestId}/reject`);
       // รีเฟรชข้อมูลจาก backend
       fetchRequests();
     } catch (err) {
