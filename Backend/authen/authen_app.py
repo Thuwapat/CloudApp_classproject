@@ -125,9 +125,9 @@ def validate_user():
         return jsonify({'error': 'Token is missing'}), 401
 
     try:
-        print(f"Decoding token: {token[:10]}...")  # แสดง token บางส่วน
+        #print(f"Decoding token: {token[:10]}...")  
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
-        print(f"Decoded token data: {data}")
+        #print(f"Decoded token data: {data}")
         user = User.query.get(data['user_id'])
         if not user:
             print(f"User not found: {data['user_id']}")

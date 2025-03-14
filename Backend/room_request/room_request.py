@@ -19,7 +19,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-    # เพิ่มข้อมูล Dummy ในตาราง Room ถ้ายังไม่มีข้อมูล
+    # For Dummy Purpose
     if Room.query.count() == 0:
         dummy_rooms = [
             Room(id=101, meetings_today=3),
@@ -33,7 +33,7 @@ with app.app_context():
 # Validate user from Authentication Service
 def validate_token(token):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'https://authen_backend:5000')
-    print(f"Calling validate_token with token: {token[:10]}...")
+    #print(f"Calling validate_token with token: {token[:10]}...")
     try:
         response = requests.post(
             f'{auth_url}/validate-user',
@@ -41,7 +41,7 @@ def validate_token(token):
             verify=False,
             timeout=5
         )
-        print(f"Response from /validate-user: Status {response.status_code}, Text: {response.text}")
+        #print(f"Response from /validate-user: Status {response.status_code}, Text: {response.text}")
         if response.status_code == 200:
             return response.json()
         return None
@@ -56,7 +56,7 @@ def create_request():
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
-    print(f"Received token in /request: {token[:10]}...")  # แสดง token บางส่วน
+    #print(f"Received token in /request: {token[:10]}...") 
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
@@ -120,14 +120,14 @@ def approve_request(request_id):
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
-    print(f"Received token in /approve: {token[:10]}...")  # เพิ่ม logging เพื่อดีบั๊ก
+    #print(f"Received token in /approve: {token[:10]}...") 
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
     if user_data.get('role') not in ['teacher', 'admin']:
         return jsonify({'error': 'Unauthorized: Not a teacher or admin'}), 403
 
-    room_request = Request.query.get_or_404(request_id)  # เปลี่ยนชื่อจาก request เป็น room_request
+    room_request = Request.query.get_or_404(request_id)  
     if room_request.status != 'Pending':
         return jsonify({'error': 'Request is not pending'}), 400
 
@@ -144,14 +144,14 @@ def reject_request(request_id):
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
-    print(f"Received token in /reject: {token[:10]}...")  # เพิ่ม logging
+    #print(f"Received token in /reject: {token[:10]}...") 
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
     if user_data.get('role') not in ['teacher', 'admin']:
         return jsonify({'error': 'Unauthorized: Not a teacher or admin'}), 403
 
-    room_request = Request.query.get_or_404(request_id)  # เปลี่ยนชื่อจาก request เป็น room_request
+    room_request = Request.query.get_or_404(request_id) 
     if room_request.status != 'Pending':
         return jsonify({'error': 'Request is not pending'}), 400
 
