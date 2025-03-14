@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
 from models import db, Room, RoomUsageLog
+import requests
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "http://localhost:5001"])
@@ -16,19 +17,37 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-    if Room.query.count() == 0:
-        dummy_rooms = [
-            Room(roomid=101, roomname="Meeting Room A", type="Meeting", capacity=20, description="Has projector"),
-            Room(roomid=102, roomname="Classroom B", type="Classroom", capacity=30, description="Whiteboard available"),
-            Room(roomid=103, roomname="Lab C", type="Lab", capacity=15, description="Computers available")
-        ]
-        db.session.bulk_save_objects(dummy_rooms)
-        db.session.commit()
-        print("Added dummy rooms to the database.")
-
+def validate_token(token):
+    auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
+    #print(f"Calling validate_token with token: {token[:10]}...")
+    try:
+        response = requests.post(
+            f'{auth_url}/validate-user',
+            headers={'Authorization': f'Bearer {token}'},
+            verify=False,
+            timeout=5
+        )
+        print(f"Response from /validate-user: Status {response.status_code}, Text: {response.text}")
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except requests.RequestException as e:
+        print(f"Error validating token: {e}")
+        return None
+    
 # เพิ่มห้องใหม่
 @app.route('/rooms', methods=['POST'])
 def add_room():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing'}), 401
+
+    user_data = validate_token(token.replace('Bearer ', ''))
+    if not user_data:
+        return jsonify({'error': 'Invalid token or authentication failed'}), 401
+    if user_data.get('role') not in ['admin', 'teacher']:
+        return jsonify({'error': 'Unauthorized: Only admins or teachers can add rooms'}), 403
+
     data = request.get_json()
     required_fields = ['roomid', 'roomname', 'type', 'capacity']
     if not all(field in data for field in required_fields):

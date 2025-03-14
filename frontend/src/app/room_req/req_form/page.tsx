@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { apiRoom } from '@/utility/axiosInstance';
+import { apiReq } from '@/utility/axiosInstance';
 
 export default function BookRoomPage() {
   const [formData, setFormData] = useState({
@@ -33,7 +33,7 @@ export default function BookRoomPage() {
     setMessage('');
 
     try {
-      const response = await apiRoom.post('/request', formData);
+      const response = await apiReq.post('/request', formData);
       setMessage('Room request submitted successfully!');
       setTimeout(() => router.push('/room_req'), 2000); // กลับไปหน้า Request Room หลังจาก 2 วินาที
     } catch (error: any) {
