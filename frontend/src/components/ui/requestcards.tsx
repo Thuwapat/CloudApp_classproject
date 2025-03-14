@@ -60,7 +60,7 @@ export default function RequestCards() {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 h-[724px]">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Pending Room Requests</h2>
       {requests.length === 0 ? (
         <p className="text-gray-500">No pending requests.</p>

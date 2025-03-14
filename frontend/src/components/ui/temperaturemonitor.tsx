@@ -4,6 +4,11 @@ const dummyTemperatures = [
   { room: "Room 101", temp: "22°C" },
   { room: "Room 102", temp: "23°C" },
   { room: "Room 103", temp: "21°C" },
+  { room: "Room 104", temp: "22°C" },
+  { room: "Room 105", temp: "24°C" },
+  { room: "Room 106", temp: "20°C" },
+  { room: "Room 107", temp: "23°C" },
+  { room: "Room 108", temp: "21°C" },
 ];
 
 const TemperatureMonitor = () => {
@@ -17,7 +22,7 @@ const TemperatureMonitor = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md">
+    <div className="p-6 bg-white rounded-xl shadow-md h-[334px] overflow-y-auto">
       <h3 className="text-xl font-semibold text-[#221C3FFF] mb-4">Temperature Monitoring</h3>
       <ul className="space-y-2">
         {temperatures.map((temp, index) => (
