@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { apiRoom } from '@/utility/axiosInstance';
-import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/ui/sidebarrequest';
+import { useState, useEffect } from "react";
+import { apiRoom } from "@/utility/axiosInstance";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/ui/sidebarrequest";
 
 export default function RequestRoomPage() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  // ดึงข้อมูลห้อง
+  // ดึงข้อมูลห้องจาก room_mgmt
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const response = await apiRoom.get('/rooms');
-        setRooms(response.data);
+        const response = await apiRoom.get("/rooms");
+        setRooms(response.data); // รับข้อมูลจาก room_mgmt
       } catch (err) {
-        setError('Failed to load rooms');
-        console.error('Error fetching rooms:', err);
+        setError("Failed to load rooms");
+        console.error("Error fetching rooms:", err);
       } finally {
         setLoading(false);
       }
@@ -41,11 +41,13 @@ export default function RequestRoomPage() {
 
       {/* Main Content */}
       <div className="flex-1 p-10">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Good Morning, [Student Name]</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">
+          Good Morning, [Student Name]
+        </h1>
         <div className="grid gap-6">
           {rooms.map((room) => (
             <div
-              key={room.id}
+              key={room.roomid} // เปลี่ยนจาก id เป็น roomid
               className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center"
             >
               {/* Placeholder Image */}
@@ -55,16 +57,21 @@ export default function RequestRoomPage() {
 
               {/* Room Details */}
               <div className="text-left w-full">
-                <h2 className="text-xl font-semibold text-gray-900">{`Meeting Room ${room.id}`}</h2>
-                <p className="text-gray-600">{`${room.meetings_today || 0} meetings today`}</p>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {room.roomname || `Room ${room.roomid}`} {/* แสดง roomname หรือใช้ roomid ถ้าไม่มี */}
+                </h2>
+                <p className="text-gray-600">
+                  Type: {room.type || "N/A"}
+                </p>
                 <p className="text-gray-500 text-sm">
-                  4 seater | Whiteboard available | No Projector
+                  Capacity: {room.capacity || "N/A"} seats |{" "}
+                  {room.description || "No description available"}
                 </p>
               </div>
 
               {/* Book Button */}
               <button
-                onClick={() => handleBook(room.id)}
+                onClick={() => handleBook(room.roomid)} // เปลี่ยนจาก id เป็น roomid
                 className="mt-4 bg-black text-white py-2 px-6 rounded hover:bg-gray-800 transition"
               >
                 Request

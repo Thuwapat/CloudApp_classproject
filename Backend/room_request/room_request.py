@@ -4,7 +4,7 @@ from flask_cors import CORS
 import os
 import requests
 from datetime import datetime
-from models import db, Request, Room
+from models import db, Request
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
@@ -18,17 +18,6 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-    # For Dummy Purpose
-    if Room.query.count() == 0:
-        dummy_rooms = [
-            Room(id=101, meetings_today=3),
-            Room(id=102, meetings_today=2),
-            Room(id=103, meetings_today=1),
-        ]
-        db.session.bulk_save_objects(dummy_rooms)
-        db.session.commit()
-        print("Added dummy rooms to the database.")
 
 # Validate user from Authentication Service
 def validate_token(token):
@@ -74,7 +63,7 @@ def create_request():
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
-    #print(f"Received token in /request: {token[:10]}...") 
+    print(f"Received token in /request: {token[:10]}...")
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
@@ -85,6 +74,16 @@ def create_request():
     required_fields = ['room_id', 'start_time', 'end_time', 'reason']
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Missing required fields'}), 400
+
+    # ตรวจสอบว่า room_id มีอยู่ใน room_mgmt
+    room_mgmt_url = os.getenv('ROOM_MGMT_URL', 'http://room_mgmt_backend:5002')
+    try:
+        response = requests.get(f'{room_mgmt_url}/rooms/{data["room_id"]}')
+        if response.status_code != 200:
+            return jsonify({'error': 'Room not found'}), 404
+    except requests.RequestException as e:
+        print(f"Error checking room: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
     try:
         start_time = datetime.fromisoformat(data['start_time'].replace('Z', '+00:00'))
@@ -102,6 +101,21 @@ def create_request():
         )
         db.session.add(new_request)
         db.session.commit()
+
+        # บันทึก log การใช้งานใน room_mgmt (เมื่อคำขอถูกสร้าง)
+        try:
+            requests.post(
+                f'{room_mgmt_url}/room-usage-logs',
+                json={
+                    'roomid': data['room_id'],
+                    'user_id': user_data.get('user_id'),
+                    'start_time': data['start_time'],
+                    'end_time': data['end_time'],
+                    'purpose': data['reason']
+                }
+            )
+        except requests.RequestException as e:
+            print(f"Error logging room usage: {e}")
 
         return jsonify({'message': 'Request created', 'request_id': new_request.id}), 201
     except ValueError as e:
@@ -138,11 +152,18 @@ def get_requests():
 
     return jsonify(requests_data), 200
 
-# Get available rooms
+# ดึงข้อมูลห้องทั้งหมดจาก room_mgmt
 @app.route('/rooms', methods=['GET'])
 def get_rooms():
-    rooms = Room.query.all()
-    return jsonify([{'id': room.id, 'meetings_today': room.meetings_today} for room in rooms]), 200
+    room_mgmt_url = os.getenv('ROOM_MGMT_URL', 'http://room_mgmt_backend:5002')
+    try:
+        response = requests.get(f'{room_mgmt_url}/rooms')
+        if response.status_code == 200:
+            return jsonify(response.json()), 200
+        return jsonify({'error': 'Failed to fetch rooms'}), response.status_code
+    except requests.RequestException as e:
+        print(f"Error fetching rooms: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # Approve request
 @app.route('/requests/<int:request_id>/approve', methods=['PUT'])
