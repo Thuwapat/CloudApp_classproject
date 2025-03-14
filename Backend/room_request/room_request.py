@@ -32,7 +32,7 @@ with app.app_context():
 
 # Validate user from Authentication Service
 def validate_token(token):
-    auth_url = os.getenv('AUTH_SERVICE_URL', 'https://authen_backend:5000')
+    auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
     #print(f"Calling validate_token with token: {token[:10]}...")
     try:
         response = requests.post(
@@ -50,7 +50,7 @@ def validate_token(token):
         return None
 
 def validate_token_for_user(user_id):
-    auth_url = os.getenv('AUTH_SERVICE_URL', 'https://authen_backend:5000')
+    auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
     try:
         response = requests.post(
             f'{auth_url}/validate-user-by-id',
@@ -193,4 +193,4 @@ def reject_request(request_id):
     return jsonify({'message': 'Request rejected', 'request': room_request.to_dict()}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('/app/room_request/certificates/cert.pem', '/app/room_request/certificates/key.pem'))
+    app.run(debug=True, host='0.0.0.0', port=5001)

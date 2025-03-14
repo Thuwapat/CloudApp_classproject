@@ -37,8 +37,8 @@ services:
     container_name: authen_backend
     ports:
       - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
-    volumes:
-      - ./certificates:/app/authen/certificates 
+    #volumes:
+    #  - ./certificates:/app/authen/certificates 
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@auth_db:5432/auth_db
@@ -55,8 +55,8 @@ services:
     container_name: room_req_backend
     ports:
       - "5001:5001"
-    volumes:
-      - ./certificates:/app/room_request/certificates 
+    #volumes:
+    #  - ./certificates:/app/room_request/certificates 
     environment:
       - FLASK_ENV=development
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
@@ -77,8 +77,8 @@ services:
       - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_AUTH_URL=https://localhost:5000  # สำหรับ Authentication
-      - NEXT_PUBLIC_API_ROOM_URL=https://localhost:5001  # สำหรับ Room Management
+      - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
+      - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5001  # สำหรับ Room Management
     command: npm run dev
     depends_on:
       - authen_backend

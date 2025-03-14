@@ -10,7 +10,7 @@ from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import LegacyApplicationClient
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://localhost:5001"])
+CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "http://localhost:5001"])
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/auth_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -237,4 +237,4 @@ def google_callback():
     return redirect(frontend_url)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000, ssl_context=('/app/authen/certificates/cert.pem', '/app/authen/certificates/key.pem'))
+    app.run(debug=True, host='0.0.0.0', port=5000)

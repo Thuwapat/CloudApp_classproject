@@ -3,7 +3,7 @@ import https from 'https';
 
 // API Instance Authentication Service
 const apiAuth = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_AUTH_URL || 'https://localhost:5000',
+  baseURL: process.env.NEXT_PUBLIC_API_AUTH_URL || 'http://localhost:5000',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
@@ -15,7 +15,7 @@ const apiAuth = axios.create({
 
 // API Instance Room Request Service
 const apiRoom = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'https://localhost:5001',
+  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5001',
   timeout: 5000,
   headers: {
     'Content-Type': 'application/json',
