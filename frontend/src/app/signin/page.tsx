@@ -32,7 +32,7 @@ export default function LoginPage() {
       // Check the user's role and redirect
       const userRole = loginData.user.role; // Assuming role is in user object
       if (userRole === "student") {
-        router.push("/room_req"); // Request-room
+        router.push("/profile"); // Request-room
       } else if (userRole === "teacher" || userRole === "admin") {
         router.push("/dashboard"); // Redirect to Dashboard
       } else {
