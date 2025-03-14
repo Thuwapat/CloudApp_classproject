@@ -28,6 +28,7 @@ const apiRoom = axios.create({
 // Interceptor: ใส่ token ใน header
 const setAuthToken = (config: any) => {
   const token = localStorage.getItem('token');
+  console.log('Token in interceptor:', token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

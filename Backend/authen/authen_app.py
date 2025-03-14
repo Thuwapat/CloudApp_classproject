@@ -4,13 +4,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt as pyjwt
 import datetime
 from flask_cors import CORS
-from models import db, User 
+from models import db, User
 import os
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import LegacyApplicationClient
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000"])
+CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://localhost:5001"])
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/auth_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -52,7 +52,7 @@ def register():
     elif email.endswith('@kkumail.com'):
         role = 'student'
     else:
-        return jsonify({'error': 'Invalid email domain'}), 403  # Reject if domain doesn't match
+        return jsonify({'error': 'Invalid email domain'}), 403
 
     # Check for existing user
     if User.query.filter_by(email=email).first():
@@ -110,23 +110,27 @@ def protected():
             'user_id': data['user_id'],
             'role': data['role'],
             'first_name': user.first_name,
-            'email': user.email  # ต้องมี email ใน response
+            'email': user.email
         }), 200
     except pyjwt.ExpiredSignatureError:
         return jsonify({'error': 'Token has expired'}), 401
     except pyjwt.InvalidTokenError:
         return jsonify({'error': 'Invalid token'}), 401
-    
+
 @app.route('/validate-user', methods=['POST'])
 def validate_user():
     token = request.headers.get('Authorization')
     if not token:
+        print("No token provided in /validate-user")
         return jsonify({'error': 'Token is missing'}), 401
 
     try:
+        print(f"Decoding token: {token[:10]}...")  # แสดง token บางส่วน
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
+        print(f"Decoded token data: {data}")
         user = User.query.get(data['user_id'])
         if not user:
+            print(f"User not found: {data['user_id']}")
             return jsonify({'error': 'User not found'}), 404
         return jsonify({
             'user_id': user.id,
@@ -134,9 +138,13 @@ def validate_user():
             'first_name': user.first_name,
             'email': user.email
         }), 200
-    except pyjwt.InvalidTokenError:
+    except pyjwt.InvalidTokenError as e:
+        print(f"Invalid token error: {e}")
         return jsonify({'error': 'Invalid token'}), 401
-    
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return jsonify({'error': 'Server error'}), 500
+
 # Start Google OAuth 2.0 process
 @app.route('/auth/google', methods=['GET'])
 def google_login():
@@ -182,7 +190,7 @@ def google_callback():
     token = pyjwt.encode({
         'user_id': user.id,
         'role': user.role,
-        'first_name': user.first_name, 
+        'first_name': user.first_name,
         'last_name': user.last_name,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     }, app.config['SECRET_KEY'], algorithm='HS256')
