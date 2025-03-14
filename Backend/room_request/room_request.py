@@ -120,21 +120,22 @@ def approve_request(request_id):
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
+    print(f"Received token in /approve: {token[:10]}...")  # เพิ่ม logging เพื่อดีบั๊ก
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
     if user_data.get('role') not in ['teacher', 'admin']:
         return jsonify({'error': 'Unauthorized: Not a teacher or admin'}), 403
 
-    request = Request.query.get_or_404(request_id)
-    if request.status != 'Pending':
+    room_request = Request.query.get_or_404(request_id)  # เปลี่ยนชื่อจาก request เป็น room_request
+    if room_request.status != 'Pending':
         return jsonify({'error': 'Request is not pending'}), 400
 
-    request.status = 'Approved'
-    request.teacher_id = user_data.get('user_id')
+    room_request.status = 'Approved'
+    room_request.teacher_id = user_data.get('user_id')
     db.session.commit()
 
-    return jsonify({'message': 'Request approved', 'request': request.to_dict()}), 200
+    return jsonify({'message': 'Request approved', 'request': room_request.to_dict()}), 200
 
 # Reject request
 @app.route('/requests/<int:request_id>/reject', methods=['PUT'])
@@ -143,21 +144,22 @@ def reject_request(request_id):
     if not token:
         return jsonify({'error': 'Token is missing'}), 401
 
+    print(f"Received token in /reject: {token[:10]}...")  # เพิ่ม logging
     user_data = validate_token(token.replace('Bearer ', ''))
     if not user_data:
         return jsonify({'error': 'Invalid token or authentication failed'}), 401
     if user_data.get('role') not in ['teacher', 'admin']:
         return jsonify({'error': 'Unauthorized: Not a teacher or admin'}), 403
 
-    request = Request.query.get_or_404(request_id)
-    if request.status != 'Pending':
+    room_request = Request.query.get_or_404(request_id)  # เปลี่ยนชื่อจาก request เป็น room_request
+    if room_request.status != 'Pending':
         return jsonify({'error': 'Request is not pending'}), 400
 
-    request.status = 'Rejected'
-    request.teacher_id = user_data.get('user_id')
+    room_request.status = 'Rejected'
+    room_request.teacher_id = user_data.get('user_id')
     db.session.commit()
 
-    return jsonify({'message': 'Request rejected', 'request': request.to_dict()}), 200
+    return jsonify({'message': 'Request rejected', 'request': room_request.to_dict()}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('/app/room_request/certificates/cert.pem', '/app/room_request/certificates/key.pem'))
