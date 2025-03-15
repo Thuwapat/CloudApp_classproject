@@ -9,7 +9,7 @@ import TemperatureMonitor from '@/components/ui/temperaturemonitor';
 import RequestCards from '@/components/ui/requestcards';
 import Header from '@/components/header';
 import ResponsiveSidebar from '@/components/ui/responsidebar';
-
+import Link from "next/link";
 
 export default function Dashboard() {
   const router = useRouter();
