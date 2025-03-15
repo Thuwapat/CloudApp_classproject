@@ -5,24 +5,22 @@ import Sidebar from '@/components/ui/sidebar';
 import DashboardHeader from '@/components/ui/dashboardheader';
 import RoomCards from '@/components/ui/roomcards';
 import Logs from '@/components/ui/logs';
-import Graph from '@/components/ui/graph';
 import TemperatureMonitor from '@/components/ui/temperaturemonitor';
 import RequestCards from '@/components/ui/requestcards';
+
 
 export default function Dashboard() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [firstName, setFirstName] = useState('User'); // Default name
+  const [firstName, setFirstName] = useState('User');
 
   useEffect(() => {
-    // ดึง user จาก localStorage
     const user = localStorage.getItem('user');
     if (user) {
       const parsedUser = JSON.parse(user);
-      setFirstName(parsedUser.first_name || 'User'); // ตั้งชื่อจาก first_name
+      setFirstName(parsedUser.first_name || 'User');
     }
 
-    // ตรวจสอบ authorization
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/login?error=Please log in to access the dashboard');
@@ -56,21 +54,33 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-[#F5F3EF]">
       <Sidebar />
       <div className="flex-1">
-        {/* ใช้ DashboardHeader และส่ง firstName */}
-        <DashboardHeader firstName={firstName}/>
-        
+        <DashboardHeader firstName={firstName} />
+
         <main className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <RoomCards />
-            <RequestCards /> {/* เพิ่ม RequestCards */}
-            <div className="lg:col-span-2">
-              <Logs />
+          {/* ใช้ Grid Layout */}
+          <div className="grid grid-cols-3 grid-rows-2 gap-6 h-[80vh]">
+            
+            {/* Room List (กิน 2 แถว ซ้ายมือ) */}
+            <div className="row-span-2 bg-white p-4 shadow rounded-lg">
+              <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
+                + Add Room
+              </button>
+              <RoomCards />
             </div>
-            <div>
+
+            {/* Temperature Monitoring (แถวบนกลาง) */}
+            <div className="bg-white p-4 shadow rounded-lg">
               <TemperatureMonitor />
             </div>
-            <div className="lg:col-span-2">
-              <Graph />
+
+            {/* Request Panel (กิน 2 แถว ขวาสุด) */}
+            <div className="row-span-2 bg-white p-4 shadow rounded-lg">
+              <RequestCards />
+            </div>
+
+            {/* Access Logs (แถวล่างกลาง) */}
+            <div className="bg-white p-4 shadow rounded-lg">
+              <Logs />
             </div>
           </div>
         </main>

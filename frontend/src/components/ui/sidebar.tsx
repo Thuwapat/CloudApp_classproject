@@ -24,7 +24,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-white h-screen p-6 shadow-md">
+    <aside className="w-64 bg-white h-100% p-6 shadow-md">
       {/* Logo */}
       <div className="flex items-center mb-8">
         <Image src="/logo.png" alt="Logo" width={32} height={32} />
@@ -51,22 +51,22 @@ const Sidebar = () => {
         <ul className="space-y-4">
           <li>
             <Link href="/dashboard" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2">🏠</span> Dashboard
+              <span className="mr-2"></span> Dashboard
             </Link>
           </li>
           <li>
             <Link href="/analytics" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2">📊</span> Analytics
+              <span className="mr-2"></span> Analytics
             </Link>
           </li>
           <li>
             <Link href="/settings" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2">⚙️</span> Settings
+              <span className="mr-2"></span> Settings
             </Link>
           </li>
           <li>
             <Link href="/addroom" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2">⚙️</span> add Room
+              <span className="mr-2"></span> add Room
             </Link>
           </li>
           
@@ -75,7 +75,7 @@ const Sidebar = () => {
               onClick={handleLogout}
               className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]"
             >
-              <span className="mr-2">🚪</span> Logout
+              <span className="mr-2"></span> Logout
             </button>
           </li>
         </ul>

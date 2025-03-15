@@ -102,26 +102,33 @@ services:
     networks:
       - app-network
 
-  # frontend:
-  #   build:
-  #     context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/app
-  #     - frontend_node_modules:/app/node_modules        # mount โค้ดจากเครื่อง host ไปที่ /app ใน container
-  #     - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
-  #   environment:
-  #     - NODE_ENV=development
-  #     - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
-  #     - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5001  # สำหรับ Room Request
-  #   command: npm run dev
-  #   depends_on:
-  #     - authen_backend
-  #     - room_req_backend
-  #   networks:
-  #     - app-network
+
+  frontend:
+    build:
+      context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app  # Sync โค้ดแบบ Realtime
+      - /app/node_modules  # ป้องกัน node_modules ถูกเขียนทับ
+      - /app/.next         # ใช้ anonymous volume สำหรับ .next
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=developmen
+      - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
+      - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5001  # สำหรับ Room Request
+    command: npm run dev
+    depends_on:
+      - authen_backend
+      - room_req_backend
+    networks:
+      - app-network
+    stdin_open: true  # ป้องกันปัญหากับ npm run dev
+    tty: true         # ให้ container รันแบบ interactive
+
+
 
 volumes:
   auth_db_data:
