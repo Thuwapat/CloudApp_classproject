@@ -20,26 +20,26 @@ const Header: React.FC<HeaderProps> = ({ firstName }) => {
       {/* ส่วน Navbar บนสุด */}
       <nav className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* โลโก้ / Branding */}
-        <div className="text-xl font-bold">
-          LOGO
+        <div className="flex flex-row gap-0.5">
+        <div className="text-xl font-bold text-[#302858FF]">COE</div>
+        <div className="text-xl font-bold text-[#E08184FF]">Access</div>
         </div>
-
         {/* เมนูแบบเต็ม (แสดงบนจอใหญ่ขึ้นไป) */}
         <ul className="hidden md:flex gap-6">
           <li>
-            <a href="#" className="hover:text-blue-500">Home</a>
+            <a href="#" className="text-[#302858FF] hover:text-blue-500">Home</a>
           </li>
           <li>
-            <a href="#" className="hover:text-blue-500">About</a>
+            <a href="#" className=" text-[#302858FF] hover:text-blue-500">About</a>
           </li>
           <li>
-            <a href="#" className="hover:text-blue-500">Contact</a>
+            <a href="#" className=" text-[#302858FF] hover:text-blue-500">Contact</a>
           </li>
           <li>
-            <a href="#" className="hover:text-blue-500">Services</a>
+            <a href="#" className=" text-[#302858FF] hover:text-blue-500">Services</a>
           </li>
           <li>
-            <a href="#" className="hover:text-blue-500">Welcome {firstName}</a>
+            <a href="#" className=" text-[#302858FF] hover:text-blue-500">Welcome {firstName}</a>
           </li>
         </ul>
 
@@ -57,19 +57,19 @@ const Header: React.FC<HeaderProps> = ({ firstName }) => {
         <div className="md:hidden bg-white shadow px-4 py-2">
           <ul className="flex flex-col gap-3">
             <li>
-              <a href="#" className="hover:text-blue-500 block">Home</a>
+              <a href="#" className="text-[#302858FF] hover:text-blue-500 block">Home</a>
             </li>
             <li>
-              <a href="#" className="hover:text-blue-500 block">About</a>
+              <a href="#" className=" text-[#302858FF] hover:text-blue-500 block">About</a>
             </li>
             <li>
-              <a href="#" className="hover:text-blue-500 block">Contact</a>
+              <a href="#" className="text-[#302858FF] hover:text-blue-500 block">Contact</a>
             </li>
             <li>
-              <a href="#" className="hover:text-blue-500 block">Services</a>
+              <a href="#" className="text-[#302858FF] hover:text-blue-500 block">Services</a>
             </li>
             <li>
-              <a href="#" className="hover:text-blue-500 block">Welcome {firstName}</a>
+              <a href="#" className="text-[#302858FF] hover:text-blue-500 block">Welcome {firstName}</a>
             </li>
           </ul>
         </div>

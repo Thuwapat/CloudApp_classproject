@@ -35,7 +35,7 @@ export default function RequestRoomPage() {
   if (error) return <div className="p-10 text-red-500">{error}</div>;
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-full bg-gray-100">
       {/* Sidebar */}
       <Sidebar />
 

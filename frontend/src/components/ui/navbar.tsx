@@ -21,50 +21,6 @@ const Navbar = ({ showDashboard = false }: { showDashboard?: boolean }) => {
           <div className="text-xl font-bold text-[#E08184FF]">Access</div>
         </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:block px-2">
-          <Link href="#">
-            <span className="text-[#302858FF] hover:text-[#E06A6EFF]">
-              Products
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="text-[#302858FF] hover:text-[#E06A6EFF]">
-              Admin
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="text-[#302858FF] hover:text-[#E06A6EFF]">
-              Resources
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="text-[#302858FF] hover:text-[#E06A6EFF]">
-              About us
-            </span>
-          </Link>
-        </nav>
-
-        {/* Hamburger icon for Mobile */}
-        <div className="md:hidden">
-          <button onClick={toggleMobileMenu} className="text-[#302858FF] hover:text-[#E06A6EFF]">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              ></path>
-            </svg>
-          </button>
-        </div>
-
         {/* Other actions */}
         <div className="space-x-4 ">
           {showDashboard && (
@@ -83,35 +39,7 @@ const Navbar = ({ showDashboard = false }: { showDashboard?: boolean }) => {
             </button>
           </Link>
         </div>
-      </div>
-
-      {/* Mobile Navigation Dropdown */}
-      {mobileMenuOpen && (
-        <nav className="mt-2 md:hidden space-y-2 px-2  flex flex-col justify-center items-center">
-          <Link href="#">
-            <span className=" text-[#302858FF] hover:text-[#E06A6EFF] ">
-              Products
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="block text-[#302858FF] hover:text-[#E06A6EFF]">
-              Admin
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="block text-[#302858FF] hover:text-[#E06A6EFF]">
-              Resources
-            </span>
-          </Link>
-          <Link href="#">
-            <span className="block text-[#302858FF] hover:text-[#E06A6EFF]">
-              About us
-            </span>
-          </Link>
-        </nav>
-      )}
-
-      
+      </div>    
     </header>
     
   );

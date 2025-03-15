@@ -105,7 +105,6 @@ services:
     networks:
       - app-network
 
-
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -132,8 +131,6 @@ services:
       - app-network
     stdin_open: true  # ป้องกันปัญหากับ npm run dev
     tty: true         # ให้ container รันแบบ interactive
-
-
 
 volumes:
   auth_db_data:

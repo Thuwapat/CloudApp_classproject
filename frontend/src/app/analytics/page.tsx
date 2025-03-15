@@ -2,9 +2,10 @@
 
 import DashboardHeader from '@/components/ui/dashboardheader';
 import Graph from '@/components/ui/graph';
-import Sidebar from '@/components/ui/sidebar';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ResponsiveSidebar from '@/components/ui/responsidebar';
+import Header from '@/components/header';
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -48,19 +49,22 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F5F3EF]">
-      <Sidebar />
-      <div className="flex-1">
-        <DashboardHeader firstName={firstName} />
-        <div className="p-6">
-        <h1 className="text-2xl font-bold text-[#221C3FFF] mb-4">Analytics</h1>
-          <div className="bg-white p-6 shadow-md rounded-lg w-full max-w-[95%] mx-auto h-[750px] flex items-center justify-center">
-            <Graph />
-          </div>
+    <div className="flex min-h-screen w-full bg-[#F5F3EF]">
+      <Header firstName={''}/>
+      <div className="w-64">
 
-        </div>
+        <ResponsiveSidebar />
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 p-6 overflow-auto">
+        <h1 className="text-2xl font-bold text-[#221C3FFF] mb-4">Analytics</h1>
+        <div className="bg-white p-6 shadow-md rounded-lg h-screen">
+          <Graph />
+        </div>
+      </main>
     </div>
+
   );
 }
 
