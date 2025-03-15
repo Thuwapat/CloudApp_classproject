@@ -1,27 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; // เพิ่ม useRouter สำหรับ redirect
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
 import Input from "@/components/ui/input";
-import { apiRoom } from "@/utility/axiosInstance"; // ใช้ apiRoom ที่ตั้งค่าไว้สำหรับ room_mgmt
+import { apiRoom } from "@/utility/axiosInstance";
 
 export default function AddNewRoom() {
-  const router = useRouter(); 
+  const router = useRouter();
   const [firstName, setFirstName] = useState("User");
-  const [roomId, setRoomId] = useState(""); 
-  const [roomName, setRoomName] = useState(""); 
-  const [capacity, setCapacity] = useState(""); 
-  const [type, setType] = useState(""); 
-  const [description, setDescription] = useState(""); 
-  const [capacityError, setCapacityError] = useState(""); 
+  const [roomId, setRoomId] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [capacity, setCapacity] = useState("");
+  const [type, setType] = useState("");
+  const [description, setDescription] = useState("");
+  const [capacityError, setCapacityError] = useState("");
   const [roomIdError, setRoomIdError] = useState("");
   const [roomNameError, setRoomNameError] = useState("");
-  const [typeError, setTypeError] = useState(""); 
-  const [loading, setLoading] = useState(false); 
-  const [successMessage, setSuccessMessage] = useState(""); 
-  const [errorMessage, setErrorMessage] = useState(""); 
+  const [typeError, setTypeError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -77,8 +77,8 @@ export default function AddNewRoom() {
       return;
     }
 
-    if (numericValue < 5 || numericValue > 80) {
-      setCapacityError("Capacity must be between 5 and 80");
+    if (numericValue < 1 || numericValue > 100) {
+      setCapacityError("Capacity must be between 1 and 100");
     } else {
       setCapacityError("");
     }
@@ -98,7 +98,6 @@ export default function AddNewRoom() {
 
   // ฟังก์ชันสำหรับเพิ่มห้อง
   const handleAddRoom = async () => {
-    // ตรวจสอบ validation ก่อนส่ง
     if (!roomId || roomIdError) {
       setRoomIdError(roomId ? roomIdError : "Room ID is required");
       return;
@@ -122,22 +121,21 @@ export default function AddNewRoom() {
 
     try {
       const response = await apiRoom.post("/rooms", {
-        roomid: Number(roomId), // ส่งเป็น integer
+        roomid: Number(roomId),
         roomname: roomName,
         type,
-        capacity: Number(capacity), // ส่งเป็น integer
+        capacity: Number(capacity),
         description,
       });
 
       setSuccessMessage("Room added successfully!");
-      // รีเซ็ตฟอร์มหลังเพิ่มสำเร็จ
       setRoomId("");
       setRoomName("");
       setCapacity("");
       setType("");
       setDescription("");
       setTimeout(() => {
-        router.push("/addroom"); // เปลี่ยนเส้นทางไปหน้าที่ต้องการ (เช่น หน้ารายการห้อง)
+        router.push("/addroom");
       }, 2000);
     } catch (error: any) {
       if (error.response) {
@@ -153,7 +151,7 @@ export default function AddNewRoom() {
 
   // ฟังก์ชันสำหรับยกเลิก
   const handleCancel = () => {
-    router.push("/rooms"); // เปลี่ยนเส้นทางไปหน้าที่ต้องการ
+    router.push("/rooms");
   };
 
   return (
@@ -213,11 +211,11 @@ export default function AddNewRoom() {
                     value={type}
                     onChange={handleSelectChange}
                   >
-                    <option value="">Select Room Type</option> {/* เพิ่มตัวเลือกเริ่มต้น */}
+                    <option value="">Select Room Type</option>
                     <option value="Conference Room">Conference Room</option>
                     <option value="Work Room">Work Room</option>
                     <option value="Classroom">Classroom</option>
-                    <option value="Classroom">Labartory</option>
+                    <option value="Labartory">Labartory</option> {/* แก้ typo จาก Classroom เป็น Labartory */}
                   </select>
                   {typeError && (
                     <p className="text-red-500 text-sm mt-1">{typeError}</p>
@@ -230,7 +228,7 @@ export default function AddNewRoom() {
                     Description
                   </label>
                   <textarea
-                    className="w-full border border-gray-200 rounded p-2 placeholder:text-black"
+                    className="w-full bg-gray-100 border border-gray-200 rounded p-2 placeholder:text-black text-black focus:outline-none focus:border-gray-500"
                     rows={3}
                     placeholder="Description"
                     value={description}
@@ -264,10 +262,10 @@ export default function AddNewRoom() {
                   </label>
                   <input
                     type="number"
-                    className="w-full border p-2 placeholder:text-black"
-                    placeholder="5-80"
-                    min="5"
-                    max="80"
+                    className="w-full bg-gray-100 border border-gray-200 rounded p-2 placeholder:text-black text-black focus:outline-none focus:border-gray-500"
+                    placeholder="1-100"
+                    min="1"
+                    max="100"
                     value={capacity}
                     onChange={handleChangeCapacity}
                   />
