@@ -164,10 +164,10 @@ def validate_user_by_id():
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
         print(f"Decoded token data: {data}")
 
-        # ตรวจสอบว่า token มี role ที่อนุญาต (เช่น admin หรือมาจาก internal call)
-        allowed_roles = ['admin', 'teacher']
-        if data.get('role') not in allowed_roles:
-            print(f"Unauthorized role: {data.get('role')}")
+        # อนุญาตให้ทุก role เรียก endpoint นี้ได้
+        # หรือเพิ่มเงื่อนไข: ถ้าเป็น student ให้ดึงข้อมูลได้เฉพาะของตัวเอง
+        if data.get('role') == 'student' and data.get('user_id') != user_id:
+            print(f"Unauthorized: student {data.get('user_id')} cannot access user {user_id}")
             return jsonify({'error': 'Unauthorized'}), 403
 
         user = User.query.get(user_id)
