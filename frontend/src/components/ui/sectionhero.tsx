@@ -21,7 +21,7 @@ const HeroSection = () => {
 
       <div className="md:w-1/2">
         <Image
-          src="/images/hero-illustration.png"
+          src="/images/hero-illustration1.png"
           alt="Hero Illustration"
           width={500}
           height={400}

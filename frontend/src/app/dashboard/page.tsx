@@ -7,7 +7,7 @@ import RoomCards from '@/components/ui/roomcards';
 import Logs from '@/components/ui/logs';
 import TemperatureMonitor from '@/components/ui/temperaturemonitor';
 import RequestCards from '@/components/ui/requestcards';
-
+import Link from "next/link";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -62,9 +62,12 @@ export default function Dashboard() {
             
             {/* Room List (กิน 2 แถว ซ้ายมือ) */}
             <div className="row-span-2 bg-white p-4 shadow rounded-lg overflow-y-auto">
+              <Link href="/addroom">
               <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
               </button>
+              
+              </Link>
               <RoomCards />
             </div>
 

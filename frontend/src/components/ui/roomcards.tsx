@@ -28,23 +28,25 @@ const RoomCards = () => {
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md w-full h-fit overflow-y-auto">
-      <div className="space-y-4">
-        {roomStats.map((room, index) => (
-          <div
-            key={room.roomId}
-            onClick={() => handleRoomClick(room.roomId)}
-            className="p-4 rounded-lg shadow text-white cursor-pointer hover:opacity-80 transition-all"
-            style={{
-              background: index % 2 === 0 ? "#6B48FF" : "#34D399",
-            }}
-          >
-            <h3 className="text-lg font-semibold">{room.room}</h3>
-            <p className="text-sm">Temperature: {room.temp}</p>
-            <p className="text-sm">Last Accessed: {room.lastAccessed}</p>
-          </div>
-        ))}
+  <div className="space-y-4">
+    {roomStats.map((room, index) => (
+      <div
+        key={room.roomId}
+        onClick={() => handleRoomClick(room.roomId)}
+        className={`p-4 rounded-lg shadow cursor-pointer hover:opacity-80 transition-all ${
+          index % 2 === 0 ? "text-white" : "text-black"
+        }`}
+        style={{
+          background: index % 2 === 0 ? "#D77D7D" : "#f0f0f0",
+        }}
+      >
+        <h3 className="text-lg font-semibold">{room.room}</h3>
+        <p className="text-sm">Temperature: {room.temp}</p>
+        <p className="text-sm">Last Accessed: {room.lastAccessed}</p>
       </div>
-    </div>
+    ))}
+  </div>
+</div>
   );
 };
 
