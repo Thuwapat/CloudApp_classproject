@@ -7,7 +7,7 @@ import Input from "@/components/ui/input";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
-import { apiupdateprofile } from "@/utility/axiosInstance";
+import { apiAuth } from "@/utility/axiosInstance";
 
 interface FormErrors {
   first_name?: string;
@@ -124,7 +124,7 @@ export default function ProfilePage() {
     };
 
     try {
-      const response = await apiupdateprofile.put(`/profile/${userId}`, payload);
+      const response = await apiAuth.put(`/profile/${userId}`, payload);
       const updatedData = response.data;
       localStorage.setItem("user", JSON.stringify(updatedData.user));
       setUser({

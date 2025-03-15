@@ -15,7 +15,7 @@ const apiAuth = axios.create({
 
 // API Instance Room Request Service
 const apiRoom = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'https://localhost:5001',
+  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5002',
 
   timeout: 5000,
   headers: {
@@ -49,21 +49,10 @@ const setAuthToken = (config: any) => {
 };
 
 
-const apiupdateprofile = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_AUTH_URL || 'http://localhost:5000',
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  httpsAgent: new https.Agent({
-    rejectUnauthorized: false, 
-  }),
-});
 
 apiAuth.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
 apiReq.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
 apiRoom.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
-apiupdateprofile.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
 
 const handleResponseError = (error: any) => {
   if (error.response?.status === 401) {
@@ -76,6 +65,6 @@ const handleResponseError = (error: any) => {
 apiAuth.interceptors.response.use((response) => response, handleResponseError);
 apiReq.interceptors.response.use((response) => response, handleResponseError);
 apiRoom.interceptors.response.use((response) => response, handleResponseError);
-apiupdateprofile.interceptors.response.use((response) => response, handleResponseError);
 
-export { apiAuth, apiReq, apiRoom, apiupdateprofile };
+
+export { apiAuth, apiReq, apiRoom, };
