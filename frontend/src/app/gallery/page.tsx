@@ -1,6 +1,3 @@
-// app/gallery/page.tsx
-// นี่คือไฟล์ Page ใน Next.js 13 App Router
-
 import React from 'react';
 import GalleryClient from './GalleryClient';
 
@@ -25,13 +22,22 @@ async function getImages() {
   }
 
   const data = await res.json();
-  return data.images;
+  // แปลง uploaded_at ให้เป็น +7 ในฝั่ง Server
+  const images = data.images.map((img: any) => {
+    const date = new Date(img.uploaded_at);
+    date.setHours(date.getHours() + 7); // บวก 7 ชั่วโมง
+    const localTime = date.toISOString().slice(0, 19).replace('T', ' '); // รูปแบบ "YYYY-MM-DD HH:mm:ss"
+    return {
+      ...img,
+      uploaded_at: localTime, // อัปเดต uploaded_at เป็นเวลาท้องถิ่น +7
+    };
+  });
+
+  return images;
 }
+
 // Page component (Server Component โดยดีฟอลต์)
 export default async function GalleryPage() {
-  // ดึงข้อมูลจาก API ในฝั่ง Server
   const images = await getImages();
-
-  // ส่งข้อมูลให้ Client Component เพื่อให้สามารถใช้งาน useState/useEffect ได้
   return <GalleryClient images={images} />;
 }

@@ -49,7 +49,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
   // ดึงรูปภาพจาก API โดยใช้ API_KEY
   const fetchImage = async (id: number) => {
-    const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE;
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE; // ดึง API_KEY จาก environment variables
     if (!apiKey) {
       console.error('API_KEY is not defined');
       return;
@@ -121,13 +121,16 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                     className="bg-white rounded-xl shadow-md overflow-hidden transform hover:scale-105 transition duration-300"
                   >
                     <img
-                      src={imageUrls[img.id] || '/placeholder.jpg'} // ใช้ URL จาก state หรือ placeholder ถ้ายังโหลดไม่เสร็จ
+                      src={imageUrls[img.id] || '/placeholder.jpg'}
                       alt={`Image ${img.id}`}
                       className="w-full h-40 object-cover"
+                      loading="lazy"
                       onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
                     />
                     <div className="p-4">
-                      <p className="text-gray-600 text-sm">{img.uploaded_at}</p>
+                      <p className="text-gray-600 text-sm">
+                        {img.uploaded_at}
+                      </p>
                     </div>
                   </div>
                 ))}
