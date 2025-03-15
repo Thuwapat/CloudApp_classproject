@@ -6,7 +6,7 @@ import GalleryClient from './GalleryClient';
 
 // ฟังก์ชันสำหรับดึงข้อมูลจาก API (รันบน Server)
 async function getImages() {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE;
   if (!apiKey) {
     throw new Error("API_KEY ไม่ถูกกำหนดใน environment variables");
   }
