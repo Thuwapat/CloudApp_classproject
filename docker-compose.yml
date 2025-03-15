@@ -16,6 +16,11 @@ services:
       - auth_db_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d auth_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       
   room_req_db:
     image: postgres:13
@@ -31,6 +36,11 @@ services:
       - room_req_db_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U myuser -d room_req_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   room_mgmt_db:
     image: postgres:13
@@ -46,24 +56,30 @@ services:
       - room_mgmt_db_data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d room_mgmt_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   authen_backend:
     build:
-      context: ./Backend    # โฟลเดอร์ที่มี Dockerfile สำหรับ Flask
+      context: ./Backend   
       dockerfile: authen/dockerfile.authen
     container_name: authen_backend
     ports:
-      - "5000:5000"           # map port 5000 ของ container กับเครื่อง host
+      - "5000:5000"           
     #volumes:
     #  - ./certificates:/app/authen/certificates 
     environment:
-      - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
+      - FLASK_ENV=development  
       - DATABASE_URL=postgresql://myuser:mypass@auth_db:5432/auth_db
       - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
       - GOOGLE_CLIENT_ID=1033311153846-985omsfscb3beu6u42c0qpo6k6m5vheg.apps.googleusercontent.com
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
-      - auth_db                   # รอให้บริการฐานข้อมูลพร้อมก่อน backend เริ่มทำงาน
+        auth_db:
+          condition: service_healthy                  
     networks:
       - app-network
 
@@ -72,6 +88,7 @@ services:
       context: ./Backend
       dockerfile: room_request/dockerfile.req
     container_name: room_req_backend
+    restart: always
     ports:
       - "5001:5001"
     #volumes:
@@ -81,8 +98,10 @@ services:
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
       - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
     depends_on:
-      - room_req_db
-      - authen_backend
+      room_req_db:
+        condition: service_healthy
+      authen_backend:
+        condition: service_started
     networks:
       - app-network
 
@@ -91,6 +110,7 @@ services:
       context: ./Backend
       dockerfile: room_mgmt/dockerfile.mgmt
     container_name: room_mgmt_backend
+    restart: always
     ports:
       - "5002:5002"
     #volumes:
@@ -100,25 +120,27 @@ services:
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_mgmt_db:5432/room_mgmt_db
       - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
     depends_on:
-      - room_req_db
-      - authen_backend
+      room_mgmt_db: 
+        condition: service_healthy
+      authen_backend:
+        condition: service_started
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
+      context: ./frontend      
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app  # Sync โค้ดแบบ Realtime
-      - frontend_node_modules:/app/node_modules  # Map ไปที่ named volume
+      - frontend_node_modules:/app/node_modules  
       - frontend_next:/app/.next
     environment:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
-      - NODE_ENV=developmen
+      - NODE_ENV=development
       - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
       - NEXT_PUBLIC_API_REQ_URL=http://localhost:5001  # สำหรับ Request Service
       - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5002 # สำหรับ Room Mgmt
@@ -136,8 +158,8 @@ volumes:
   auth_db_data:
   room_req_db_data:
   room_mgmt_db_data:
-  frontend_node_modules:  # เพิ่ม Named Volume สำหรับ node_modules
-  frontend_next:  # เพิ่ม Named Volume สำหรับ .next
+  frontend_node_modules:  
+  frontend_next:  
 
 networks:
   app-network:
