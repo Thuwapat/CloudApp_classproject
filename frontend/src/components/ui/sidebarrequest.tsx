@@ -60,8 +60,8 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link href="/reg_rfid" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2">🏷️</span> Register RFID
+            <Link href="/profile" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2">🏷️</span> Profile & RFID Setting
             </Link>
           </li>
           <li>

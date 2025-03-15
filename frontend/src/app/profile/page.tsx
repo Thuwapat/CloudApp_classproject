@@ -148,7 +148,7 @@ export default function ProfilePage() {
         <DashboardHeader firstName={user.first_name || "User"} />
         <div className="p-6 overflow-auto bg-gray-100 h-full"> 
           <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-            <h2 className="text-2xl font-bold mb-4 text-center">Profile</h2>
+            <h2 className="text-2xl font-bold mb-4 text-left text-gray-700">Profile</h2>
             {/* หากไม่ต้องการแสดง Avatar ให้ลบส่วนนี้ออก */}
             {/* <div className="flex justify-center mb-6">
               {user.avatar ? (
