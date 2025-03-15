@@ -60,8 +60,8 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <Link href="/settings" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2"></span> Settings
+            <Link href="/gallery" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
+              <span className="mr-2"></span> Gallery
             </Link>
           </li>
           <li>
