@@ -14,6 +14,18 @@ const apiAuth = axios.create({
 });
 
 // API Instance Room Request Service
+const apiReq = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_REQ_URL || 'http://localhost:5001',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false, 
+  }),
+});
+
+// API Instance Room Request Service
 const apiRoom = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5002',
 
@@ -26,19 +38,6 @@ const apiRoom = axios.create({
   }),
 });
 
-// API Instance Room Request Service
-const apiReq = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5001',
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  httpsAgent: new https.Agent({
-    rejectUnauthorized: false, 
-  }),
-});
-
-
 const setAuthToken = (config: any) => {
   const token = localStorage.getItem('token');
   console.log('Token in interceptor:', token);
@@ -47,8 +46,6 @@ const setAuthToken = (config: any) => {
   }
   return config;
 };
-
-
 
 apiAuth.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
 apiReq.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
