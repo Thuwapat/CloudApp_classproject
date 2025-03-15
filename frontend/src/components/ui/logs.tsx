@@ -23,7 +23,7 @@ const Logs = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md h-[334px] flex flex-col">
+    <div className="p-6 bg-white rounded-xl shadow-md h-full flex flex-col">
       <h3 className="text-xl font-semibold text-[#221C3FFF] mb-4">Access Logs</h3>
       
       {/* Scrollable Container */}

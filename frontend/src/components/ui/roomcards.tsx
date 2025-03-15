@@ -1,17 +1,19 @@
+"use client";
+
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const dummyRoomStats = [
-  { room: "Room 101", temp: "22°C", lastAccessed: "2025-03-10 09:15" },
-  { room: "Room 102", temp: "23°C", lastAccessed: "2025-03-10 09:30" },
-  { room: "Room 103", temp: "21°C", lastAccessed: "2025-03-10 10:00" },
-  { room: "Room 104", temp: "22°C", lastAccessed: "2025-03-10 10:15" },
-  { room: "Room 105", temp: "24°C", lastAccessed: "2025-03-10 10:30" },
-  { room: "Room 106", temp: "20°C", lastAccessed: "2025-03-10 10:45" },
-  { room: "Room 107", temp: "23°C", lastAccessed: "2025-03-10 11:00" },
+  { roomId: "101", room: "Room 101", temp: "22°C", lastAccessed: "2025-03-10 09:15" },
+  { roomId: "102", room: "Room 102", temp: "23°C", lastAccessed: "2025-03-10 09:30" },
+  { roomId: "103", room: "Room 103", temp: "21°C", lastAccessed: "2025-03-10 10:00" },
+  { roomId: "104", room: "Room 104", temp: "22°C", lastAccessed: "2025-03-10 10:15" },
+  { roomId: "105", room: "Room 105", temp: "24°C", lastAccessed: "2025-03-10 10:30" },
 ];
 
 const RoomCards = () => {
   const [roomStats, setRoomStats] = useState(dummyRoomStats);
+  const router = useRouter();
 
   useEffect(() => {
     // Fetch room stats from API
@@ -20,15 +22,18 @@ const RoomCards = () => {
     //   .then((data) => setRoomStats(data));
   }, []);
 
-  return (
-    <div className="bg-white p-4 rounded-lg shadow-md w-full h-[668px] overflow-y-auto">
+  const handleRoomClick = (roomId: string) => {
+    router.push(`/access-log/${roomId}`); // Navigate using `roomID`
+  };
 
-      {/* Room Cards (Scrollable List) */}
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-md w-full h-fit overflow-y-auto">
       <div className="space-y-4">
         {roomStats.map((room, index) => (
           <div
-            key={index}
-            className="p-4 rounded-lg shadow text-white"
+            key={room.roomId}
+            onClick={() => handleRoomClick(room.roomId)}
+            className="p-4 rounded-lg shadow text-white cursor-pointer hover:opacity-80 transition-all"
             style={{
               background: index % 2 === 0 ? "#6B48FF" : "#34D399",
             }}
@@ -44,4 +49,3 @@ const RoomCards = () => {
 };
 
 export default RoomCards;
-

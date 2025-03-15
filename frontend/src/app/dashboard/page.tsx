@@ -62,7 +62,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-3 grid-rows-2 gap-6 h-[80vh]">
             
             {/* Room List (กิน 2 แถว ซ้ายมือ) */}
-            <div className="row-span-2 bg-white p-4 shadow rounded-lg">
+            <div className="row-span-2 bg-white p-4 shadow rounded-lg overflow-y-auto">
               <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
               </button>
