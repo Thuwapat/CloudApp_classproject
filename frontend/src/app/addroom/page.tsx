@@ -6,6 +6,8 @@ import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
 import Input from "@/components/ui/input";
 import { apiRoom } from "@/utility/axiosInstance"; // ใช้ apiRoom ที่ตั้งค่าไว้สำหรับ room_mgmt
+import ResponsiveSidebar from "@/components/ui/responsidebar";
+import Header from "@/components/header";
 
 export default function AddNewRoom() {
   const router = useRouter(); 
@@ -157,17 +159,17 @@ export default function AddNewRoom() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex h-full">
       {/* Sidebar ด้านซ้าย */}
-      <Sidebar />
-
+      <Header firstName={''}/>
+      <ResponsiveSidebar />
       {/* ส่วนเนื้อหา (Main Content) ด้านขวา */}
       <div className="flex-1 flex flex-col h-screen">
         {/* Header ด้านบน */}
-        <DashboardHeader firstName={firstName} />
+        {/* <DashboardHeader firstName={firstName} /> */}
 
         {/* ส่วนเนื้อหาหลัก (Form Add New Room) */}
-        <div className="p-6 overflow-auto bg-[#F5F3EF] h-full">
+        <div className="p-6 pl-70 pt-20 overflow-auto bg-[#F5F3EF] h-full">
           <div className="bg-white p-6 rounded shadow">
             <h2 className="text-xl font-bold mb-6 text-black">Add New Room</h2>
 
@@ -283,7 +285,7 @@ export default function AddNewRoom() {
               <button
                 onClick={handleAddRoom}
                 disabled={loading}
-                className={`bg-[#221C3FFF] text-white px-4 py-2 rounded hover:bg-[#302858FF] ${
+                className={`bg-[#e08a8d] text-white px-4 py-2 rounded hover:bg-[#db787b] ${
                   loading ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >

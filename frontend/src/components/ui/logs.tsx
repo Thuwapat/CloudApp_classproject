@@ -29,7 +29,7 @@ const Logs = () => {
   }, []);
 
   // รูปภาพ dummy (จนกว่าจะมีระบบอัปโหลดรูปจริง)
-  const getDummyPhoto = (index) => `/dummy-photo${(index % 5) + 1}.jpg`;
+  const getDummyPhoto = (index: number) => `/dummy-photo${(index % 5) + 1}.jpg`;
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;

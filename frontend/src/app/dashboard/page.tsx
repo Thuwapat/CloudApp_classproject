@@ -7,6 +7,8 @@ import RoomCards from '@/components/ui/roomcards';
 import Logs from '@/components/ui/logs';
 import TemperatureMonitor from '@/components/ui/temperaturemonitor';
 import RequestCards from '@/components/ui/requestcards';
+import Header from '@/components/header';
+import ResponsiveSidebar from '@/components/ui/responsidebar';
 
 
 export default function Dashboard() {
@@ -56,11 +58,11 @@ const handleAddRoom = () => {
 
   return (
     <div className="flex min-h-screen bg-[#F5F3EF]">
-      <Sidebar />
       <div className="flex-1">
-        <DashboardHeader firstName={firstName} />
+        <Header firstName={''}/>
+        <ResponsiveSidebar />
 
-        <main className="p-6">
+        <main className="p-6 pt-20 pl-70">
           {/* ใช้ Grid Layout */}
           <div className="grid grid-cols-3 grid-rows-2 gap-6 h-[80vh]">
             

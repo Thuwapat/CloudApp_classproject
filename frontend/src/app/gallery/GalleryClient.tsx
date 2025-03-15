@@ -52,7 +52,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
   };
 
   return (
-    <div className="bg-amber-50 min-h-screen flex">
+    <div className="bg-[#f4e2dc] min-h-screen flex">
       {/* Responsive Sidebar */}
 
         <Header firstName={''}/>
@@ -64,11 +64,11 @@ export default function GalleryClient({ images }: GalleryClientProps) {
         {/* <Header firstName={firstName} /> */}
 
         {/* Container สำหรับ Filter และ Gallery (จัดให้อยู่ใน container เดียวกันเพื่อให้ alignment ตรงกัน) */}
-        <div className="max-w-6xl mx-auto mt-20 p-6">
+        <div className="max-w-6xl mx-auto mt-20 p-6 text-amber-400">
           {/* Filter (อยู่ด้านบนขวา) */}
           <div className="flex justify-end items-center gap-5 mb-6">
             <label htmlFor="filterDate" className="text-gray-700">
-              เลือกวันที่:
+            Filter:
             </label>
             <input
               type="date"
@@ -76,7 +76,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
               name="filterDate"
               value={filterDate}
               onChange={handleFilterChange}
-              className="border border-gray-300 rounded p-2"
+              className="border border-white rounded p-2 text-gray-900"
             />
           </div>
 
@@ -124,3 +124,5 @@ export default function GalleryClient({ images }: GalleryClientProps) {
     </div>
   );
 }
+
+
