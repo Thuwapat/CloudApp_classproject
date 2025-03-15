@@ -48,45 +48,55 @@ export default function GalleryClient({ images }: GalleryClientProps) {
   };
 
   // ดึงรูปภาพจาก API โดยใช้ API_KEY
-  const fetchImage = async (id: number) => {
-    const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE; // ดึง API_KEY จาก environment variables
+  const fetchImage = async (id: number, retries = 3) => {
+    const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE;
     if (!apiKey) {
       console.error('API_KEY is not defined');
       return;
     }
 
-    try {
-      const response = await fetch(`http://10.161.112.138:5001/image/${id}`, {
-        headers: {
-          'x-api-key': apiKey,
-        },
-      });
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(`http://10.161.112.138:5001/image/${id}`, {
+          headers: {
+            'x-api-key': apiKey,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image ${id}: ${response.status} ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image ${id}: ${response.status} ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setImageUrls((prev) => ({ ...prev, [id]: url }));
+        return; // ดึงสำเร็จ ออกจาก loop
+      } catch (error) {
+        console.error(`Attempt ${attempt} - Error fetching image ${id}:`, error);
+        if (attempt === retries) {
+          console.error(`Failed to fetch image ${id} after ${retries} attempts`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // รอ 1 วินาทีก่อน retry
       }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setImageUrls((prev) => ({ ...prev, [id]: url }));
-    } catch (error) {
-      console.error('Error fetching image:', error);
     }
   };
 
-  // ดึงรูปภาพทั้งหมดเมื่อ component ถูก mount หรือ images เปลี่ยน
+  // ดึงรูปภาพทั้งหมดเมื่อ component ถูก mount หรือ currentImages เปลี่ยน
   useEffect(() => {
     currentImages.forEach((img) => {
       if (!imageUrls[img.id]) {
         fetchImage(img.id);
       }
     });
+  }, [currentImages]); // ไม่ต้องพึ่ง imageUrls เพื่อป้องกัน loop
 
-    // คลีนอัพ Blob URL เมื่อ component unmount
+  // คลีนอัพ Blob URL เฉพาะเมื่อ component unmount
+  useEffect(() => {
     return () => {
       Object.values(imageUrls).forEach((url) => URL.revokeObjectURL(url));
+      setImageUrls({}); // รีเซ็ต imageUrls เมื่อ unmount
     };
-  }, [currentImages, imageUrls]);
+  }, []); // ทำงานเฉพาะตอน unmount
 
   return (
     <div className="bg-amber-50 min-h-screen flex">
@@ -125,12 +135,13 @@ export default function GalleryClient({ images }: GalleryClientProps) {
                       alt={`Image ${img.id}`}
                       className="w-full h-40 object-cover"
                       loading="lazy"
-                      onError={(e) => { e.currentTarget.src = '/placeholder.jpg'; }}
+                      onError={(e) => {
+                        console.error(`Failed to load image ${img.id}`);
+                        e.currentTarget.src = '/placeholder.jpg';
+                      }}
                     />
                     <div className="p-4">
-                      <p className="text-gray-600 text-sm">
-                        {img.uploaded_at}
-                      </p>
+                      <p className="text-gray-600 text-sm">{img.uploaded_at}</p>
                     </div>
                   </div>
                 ))}
