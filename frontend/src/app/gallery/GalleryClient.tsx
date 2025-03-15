@@ -17,7 +17,7 @@ interface GalleryClientProps {
 export default function GalleryClient({ images }: GalleryClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [filterDate, setFilterDate] = useState('');
-  const [imageUrls, setImageUrls] = useState<Record<number, string>>({}); // เก็บ URL ของรูปภาพ
+  const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [firstName, setFirstName] = useState('User');
 
   // จำนวนรูปต่อหน้า
@@ -39,6 +39,20 @@ export default function GalleryClient({ images }: GalleryClientProps) {
   // เปลี่ยนหน้า
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  // เปลี่ยนหน้าไปหน้าถัดไป
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // เปลี่ยนหน้าไปหน้าก่อนหน้า
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   // เมื่อเปลี่ยนวันที่ใน input
@@ -70,13 +84,13 @@ export default function GalleryClient({ images }: GalleryClientProps) {
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
         setImageUrls((prev) => ({ ...prev, [id]: url }));
-        return; // ดึงสำเร็จ ออกจาก loop
+        return;
       } catch (error) {
         console.error(`Attempt ${attempt} - Error fetching image ${id}:`, error);
         if (attempt === retries) {
           console.error(`Failed to fetch image ${id} after ${retries} attempts`);
         }
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // รอ 1 วินาทีก่อน retry
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
   };
@@ -88,15 +102,49 @@ export default function GalleryClient({ images }: GalleryClientProps) {
         fetchImage(img.id);
       }
     });
-  }, [currentImages]); // ไม่ต้องพึ่ง imageUrls เพื่อป้องกัน loop
+  }, [currentImages]);
 
   // คลีนอัพ Blob URL เฉพาะเมื่อ component unmount
   useEffect(() => {
     return () => {
       Object.values(imageUrls).forEach((url) => URL.revokeObjectURL(url));
-      setImageUrls({}); // รีเซ็ต imageUrls เมื่อ unmount
+      setImageUrls({});
     };
-  }, []); // ทำงานเฉพาะตอน unmount
+  }, []);
+
+  // คำนวณหน้าที่จะแสดง (เช่น แสดง 7 หน้า)
+  const getPaginationRange = () => {
+    const maxVisiblePages = 7; // แสดงสูงสุด 7 หน้า (รวม "...")
+    const halfVisible = Math.floor(maxVisiblePages / 2); // 3 หน้าซ้ายและขวาของหน้าปัจจุบัน
+    let start = Math.max(1, currentPage - halfVisible);
+    let end = Math.min(totalPages, start + maxVisiblePages - 1);
+
+    // ปรับ start ถ้า end ถึงหน้าสุดท้ายแล้ว
+    if (end - start + 1 < maxVisiblePages) {
+      start = Math.max(1, end - maxVisiblePages + 1);
+    }
+
+    const pages: (number | string)[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    // เพิ่ม "..." และหน้าสุดท้ายถ้าจำเป็น
+    if (start > 1) {
+      pages.unshift(1); // เพิ่มหน้าแรก
+      if (start > 2) {
+        pages.splice(1, 0, '...'); // เพิ่ม "..." หลังหน้า 1
+      }
+    }
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        pages.push('...'); // เพิ่ม "..." ก่อนหน้าสุดท้าย
+      }
+      pages.push(totalPages); // เพิ่มหน้าสุดท้าย
+    }
+
+    return pages;
+  };
 
   return (
     <div className="bg-amber-50 min-h-screen flex">
@@ -153,20 +201,46 @@ export default function GalleryClient({ images }: GalleryClientProps) {
         </div>
 
         {/* Pagination */}
-        <div className="pagination mt-4 flex justify-center">
-          {Array.from({ length: totalPages }, (_, index) => (
+        <div className="pagination mt-4 flex justify-center items-center gap-2">
+          {/* ปุ่ม Prev */}
+          <button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            className={`px-3 py-1 rounded border border-gray-300 ${
+              currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            ← Prev
+          </button>
+
+          {/* ตัวเลขหน้า */}
+          {getPaginationRange().map((page, index) => (
             <button
-              key={index + 1}
-              onClick={() => handlePageChange(index + 1)}
-              className={`mx-1 px-3 py-1 rounded ${
-                currentPage === index + 1
-                  ? 'bg-gray-400 text-white'
-                  : 'bg-white text-gray-700'
+              key={index}
+              onClick={() => typeof page === 'number' && handlePageChange(page)}
+              className={`px-3 py-1 rounded border border-gray-300 ${
+                page === currentPage
+                  ? 'bg-blue-500 text-white'
+                  : typeof page === 'number'
+                  ? 'text-gray-700 hover:bg-gray-100'
+                  : 'text-gray-500 cursor-default'
               }`}
+              disabled={typeof page !== 'number'}
             >
-              {index + 1}
+              {page}
             </button>
           ))}
+
+          {/* ปุ่ม Next */}
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className={`px-3 py-1 rounded border border-gray-300 ${
+              currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Next →
+          </button>
         </div>
       </div>
     </div>
