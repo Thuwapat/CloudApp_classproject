@@ -37,6 +37,31 @@ def validate_token(token):
         print(f"Error validating token: {e}")
         return {'error': f'Failed to validate token: {str(e)}', 'status': 500}
 
+# ฟังก์ชันดึงข้อมูลผู้ใช้จาก authen_service
+def get_user_info(user_id):
+    auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
+    internal_token = os.getenv('INTERNAL_TOKEN', 'your-internal-token')
+    if not internal_token:
+        print("INTERNAL_TOKEN is not set in environment variables")
+    try:
+        response = requests.post(
+            f'{auth_url}/validate-user-by-id',
+            json={'user_id': user_id},
+            headers={'Authorization': f'Bearer {internal_token}'},
+            verify=False,
+            timeout=5
+        )
+        if response.status_code == 200:
+            user_data = response.json()
+            return {
+                'name': f"{user_data.get('first_name', 'Unknown')} {user_data.get('last_name', 'Unknown')}",
+                'role': user_data.get('role', 'Unknown')
+            }
+        return {'name': 'Unknown', 'role': 'Unknown'}
+    except requests.RequestException as e:
+        print(f"Error fetching user info for user_id {user_id}: {e}")
+        return {'name': 'Unknown', 'role': 'Unknown'}
+
 # เพิ่มห้องใหม่
 @app.route('/rooms', methods=['POST'])
 def add_room():
@@ -68,7 +93,6 @@ def add_room():
     db.session.add(new_room)
     db.session.commit()
 
-    # สร้างตาราง Logs สำหรับห้องใหม่
     try:
         create_room_log_table(new_room.roomid)
     except Exception as e:
@@ -115,7 +139,6 @@ def delete_room(roomid):
     if not room:
         return jsonify({'error': 'Room not found'}), 404
 
-    # ลบตาราง Logs ของห้องนี้
     table_name = f"room_{roomid}_logs"
     with db.engine.connect() as conn:
         conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
@@ -163,7 +186,6 @@ def get_logs_by_room(roomid):
     if not room:
         return jsonify({'error': 'Room not found'}), 404
 
-    # ตรวจสอบและสร้างตาราง Logs หากยังไม่มี
     table_name = f"room_{roomid}_logs"
     inspector = inspect(db.engine)
     if not inspector.has_table(table_name):
@@ -184,6 +206,62 @@ def get_logs_by_room(roomid):
     except Exception as e:
         print(f"Error fetching logs: {e}")
         return jsonify({'error': 'Internal server error'}), 500
+
+# ดึง Logs ของทุกห้อง
+@app.route('/room-usage-logs/all', methods=['GET'])
+def get_all_logs():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing'}), 401
+
+    user_data = validate_token(token.replace('Bearer ', ''))
+    if 'error' in user_data:
+        return jsonify({'error': user_data['error']}), user_data['status']
+    if user_data.get('role') not in ['admin', 'teacher', 'student']:
+        return jsonify({'error': 'Unauthorized: Only admins, teachers, or students can view logs'}), 403
+
+    rooms = Room.query.all()
+    all_logs = []
+
+    # รับ limit จาก query parameter
+    limit = request.args.get('limit', default=5, type=int)
+
+    for room in rooms:
+        table_name = f"room_{room.roomid}_logs"
+        inspector = inspect(db.engine)
+        if not inspector.has_table(table_name):
+            try:
+                create_room_log_table(room.roomid)
+            except Exception as e:
+                print(f"Failed to create log table for room {room.roomid}: {e}")
+                continue
+
+        room_log = RoomUsageLog(room.roomid)
+        table = room_log.table
+
+        try:
+            with db.engine.connect() as conn:
+                result = conn.execute(table.select().order_by(table.c.created_at.desc())).fetchall()
+                for row in result:
+                    user_info = get_user_info(row.user_id)
+                    log_entry = {
+                        'id': row.logid,
+                        'user_name': user_info['name'],
+                        'role': user_info['role'],
+                        'room_name': room.roomname,
+                        'time': row.start_time.isoformat(),
+                        'purpose': row.purpose
+                    }
+                    all_logs.append(log_entry)
+        except Exception as e:
+            print(f"Error fetching logs for room {room.roomid}: {e}")
+            continue
+
+    # เรียงลำดับและจำกัดจำนวน Logs
+    all_logs.sort(key=lambda x: x['time'], reverse=True)
+    all_logs = all_logs[:limit]
+
+    return jsonify(all_logs), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)
