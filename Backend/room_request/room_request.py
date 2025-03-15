@@ -102,7 +102,7 @@ def create_request():
         db.session.add(new_request)
         db.session.commit()
 
-        # บันทึก log การใช้งานใน room_mgmt (เมื่อคำขอถูกสร้าง)
+        # บันทึก log การใช้งานใน room_mgmt
         try:
             requests.post(
                 f'{room_mgmt_url}/room-usage-logs',
