@@ -26,7 +26,7 @@ services:
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: room_req_db
     ports:
-      - "5433:5432"
+      - "5433:5433"
     volumes:
       - room_req_db_data:/var/lib/postgresql/data
     networks:
@@ -102,6 +102,7 @@ services:
     networks:
       - app-network
 
+
   frontend:
     build:
       context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -126,6 +127,7 @@ services:
       - app-network
     stdin_open: true  # ป้องกันปัญหากับ npm run dev
     tty: true         # ให้ container รันแบบ interactive
+
 
 
 volumes:

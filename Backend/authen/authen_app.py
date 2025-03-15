@@ -8,6 +8,7 @@ from models import db, User
 import os
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import LegacyApplicationClient
+from models import User 
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "http://localhost:5001"])
@@ -235,6 +236,52 @@ def google_callback():
 
     frontend_url = f'http://localhost:3000/auth/callback?token={token}'
     return redirect(frontend_url)
+
+
+@app.route('/profile/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    # ตรวจสอบ token เพื่อความปลอดภัย
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Token is missing'}), 401
+
+    try:
+        # แก้ไข token โดยลบ "Bearer " ออกหากมี
+        token = token.replace('Bearer ', '')
+        data_token = pyjwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        # ตัวอย่าง: อนุญาตให้ update เฉพาะตัวเองหรือถ้า role เป็น teacher/admin
+        if data_token['user_id'] != user_id and data_token.get('role') not in ['teacher', 'admin']:
+            return jsonify({'error': 'Unauthorized'}), 403
+    except pyjwt.ExpiredSignatureError:
+        return jsonify({'error': 'Token has expired'}), 401
+    except pyjwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid token'}), 401
+
+    # รับข้อมูล JSON จาก client
+    json_data = request.get_json()
+    if not json_data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    # กำหนด field ที่อนุญาตให้ update (รวมทั้ง RFID)
+    allowed_fields = ['first_name', 'last_name', 'email', 'rfid']
+    
+    # ค้นหาผู้ใช้จาก database
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # อัปเดตเฉพาะ field ที่ส่งมาใน request
+    for field in allowed_fields:
+        if field in json_data:
+            setattr(user, field, json_data[field])
+
+    db.session.commit()
+
+    return jsonify({
+        'message': 'User updated successfully',
+        'user': user.to_dict()
+    }), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

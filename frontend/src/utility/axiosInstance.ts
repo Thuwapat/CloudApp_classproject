@@ -14,6 +14,19 @@ const apiAuth = axios.create({
 });
 
 // API Instance Room Request Service
+const apiRoom = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5002',
+
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  httpsAgent: new https.Agent({
+    rejectUnauthorized: false, 
+  }),
+});
+
+// API Instance Room Request Service
 const apiReq = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_ROOM_URL || 'http://localhost:5001',
   timeout: 5000,
@@ -25,16 +38,6 @@ const apiReq = axios.create({
   }),
 });
 
-const apiRoom = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_ROOM_MGMT_URL || 'http://localhost:5002', // ชี้ไปที่ room_mgmt
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  httpsAgent: new https.Agent({
-    rejectUnauthorized: false, // ใช้ใน dev เท่านั้น
-  }),
-});
 
 const setAuthToken = (config: any) => {
   const token = localStorage.getItem('token');
@@ -44,6 +47,8 @@ const setAuthToken = (config: any) => {
   }
   return config;
 };
+
+
 
 apiAuth.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
 apiReq.interceptors.request.use(setAuthToken, (error) => Promise.reject(error));
@@ -61,4 +66,5 @@ apiAuth.interceptors.response.use((response) => response, handleResponseError);
 apiReq.interceptors.response.use((response) => response, handleResponseError);
 apiRoom.interceptors.response.use((response) => response, handleResponseError);
 
-export { apiAuth, apiReq, apiRoom };
+
+export { apiAuth, apiReq, apiRoom, };
