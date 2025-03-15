@@ -7,7 +7,7 @@ import RoomCards from '@/components/ui/roomcards';
 import Logs from '@/components/ui/logs';
 import TemperatureMonitor from '@/components/ui/temperaturemonitor';
 import RequestCards from '@/components/ui/requestcards';
-
+import Link from "next/link";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -69,6 +69,8 @@ const handleAddRoom = () => {
               <button onClick={handleAddRoom} className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
               </button>
+              
+              </Link>
               <RoomCards />
             </div>
 

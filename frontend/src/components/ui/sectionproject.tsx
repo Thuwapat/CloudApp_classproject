@@ -6,10 +6,10 @@ const ProjectManagementSection = () => {
   return (
     <section className="px-8 py-12 md:py-24">
       <div className="mx-auto max-w-5xl">
-        <div className="flex flex-col items-center md:flex-row">
+        <div className="flex flex-col items-center md:flex-row gap-12">
           <div className="md:w-1/2">
             <Image
-              src="/images/project-management.png"
+              src="/images/project-management.jpg"
               alt="Project Management"
               width={500}
               height={400}

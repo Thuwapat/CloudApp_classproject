@@ -27,7 +27,7 @@ const Sidebar = () => {
     <aside className="w-64 bg-white h-100% p-6 shadow-md">
       {/* Logo */}
       <div className="flex items-center mb-8">
-        <Image src="/logo.png" alt="Logo" width={32} height={32} />
+        <Image src="/images/Logo.png" alt="Logo" width={75} height={75} />
         <h1 className="ml-2 text-xl font-bold text-[#221C3FFF]">COE Access</h1>
       </div>
 

@@ -6,7 +6,7 @@ const WorkTogetherSection = () => {
   return (
     <section className="bg-[#f4e2dc] px-8 py-12 md:py-24">
       <div className="mx-auto max-w-5xl">
-        <div className="flex flex-col items-center md:flex-row-reverse">
+        <div className="flex flex-col items-center md:flex-row-reverse gap-12">
           <div className="md:w-1/2 md:pl-12">
             <h2 className="mb-4 text-2xl font-bold text-[#221C3FFF] md:text-3xl">
             Unlock Smarter Room Management with AI-Powered Security
@@ -22,7 +22,7 @@ const WorkTogetherSection = () => {
           </div>
           <div className="mt-8 md:mt-0 md:w-1/2">
             <Image
-              src="/images/work-together.png"
+              src="/images/work-together1.png"
               alt="Work Together"
               width={500}
               height={400}
