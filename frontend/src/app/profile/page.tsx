@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import { apiAuth } from "@/utility/axiosInstance";
-import Sidebar from "@/components/ui/sidebarrequest";
 
 interface FormErrors {
   first_name?: string;
@@ -20,17 +19,13 @@ interface FormErrors {
 export default function ProfilePage() {
   const router = useRouter();
 
-  // Flag for mounted status
   const [mounted, setMounted] = useState(false);
-
-  // State
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [user, setUser] = useState({
     first_name: "",
     last_name: "",
     email: "",
     rfid: "",
-  // แม้ไม่ใช้ renderAvatar แต่ยังคงเก็บไว้หากต้องการในอนาคต
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -39,7 +34,6 @@ export default function ProfilePage() {
     setMounted(true);
   }, []);
 
-  // ตรวจสอบ token และกำหนดสิทธิ์
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -61,12 +55,17 @@ export default function ProfilePage() {
     }
   }, [router]);
 
-  // โหลดข้อมูลผู้ใช้จาก localStorage
+  // โหลดข้อมูลผู้ใช้จาก localStorage และแปลง null เป็น ""
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
+      setUser({
+        first_name: parsedUser.first_name ?? "", // แปลง null เป็น ""
+        last_name: parsedUser.last_name ?? "",
+        email: parsedUser.email ?? "",
+        rfid: parsedUser.rfid ?? "",
+      });
     }
   }, []);
 
@@ -127,13 +126,16 @@ export default function ProfilePage() {
     try {
       const response = await apiAuth.put(`/profile/${userId}`, payload);
       const updatedData = response.data;
-      localStorage.setItem("user", JSON.stringify(updatedData.user));
-      setUser({
-        first_name: updatedData.user.first_name,
-        last_name: updatedData.user.last_name,
-        email: updatedData.user.email,
-        rfid: updatedData.user.rfid
-      });
+      // แปลง null เป็น "" ก่อนเก็บใน localStorage
+      const updatedUser = {
+        ...updatedData.user,
+        first_name: updatedData.user.first_name ?? "",
+        last_name: updatedData.user.last_name ?? "",
+        email: updatedData.user.email ?? "",
+        rfid: updatedData.user.rfid ?? "",
+      };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
       toast.success("Profile updated successfully!", { position: "top-right" });
     } catch (error: any) {
       toast.error(error.message || "Error updating profile", { position: "top-right" });
@@ -147,30 +149,16 @@ export default function ProfilePage() {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <DashboardHeader firstName={user.first_name || "User"} />
-        <div className="p-6 overflow-auto bg-gray-100 h-full"> 
+        <div className="p-6 overflow-auto bg-gray-100 h-full">
           <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
             <h2 className="text-2xl font-bold mb-4 text-left text-gray-700">Profile</h2>
-            {/* หากไม่ต้องการแสดง Avatar ให้ลบส่วนนี้ออก */}
-            {/* <div className="flex justify-center mb-6">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt="Avatar"
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-2xl font-bold">
-                  {((user.firstName || "")[0] || "") + (((user.lastName || "")[0] || "")).toUpperCase()}
-                </div>
-              )}
-            </div> */}
             <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-700 mb-1">First Name</label>
                   <Input
                     type="text"
-                    name="firstName"
+                    name="first_name" // เปลี่ยน name ให้ตรงกับ key ใน user
                     placeholder="First Name"
                     value={user.first_name}
                     onChange={handleChange}
@@ -183,7 +171,7 @@ export default function ProfilePage() {
                   <label className="block text-gray-700 mb-1">Last Name</label>
                   <Input
                     type="text"
-                    name="lastName"
+                    name="last_name" // เปลี่ยน name ให้ตรงกับ key ใน user
                     placeholder="Last Name"
                     value={user.last_name}
                     onChange={handleChange}

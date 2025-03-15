@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
+import ResponsiveSidebar from '@/components/ui/responsidebar';
+import Header from '@/components/header';
 import DashboardHeader from "@/components/ui/dashboardheader";
 import { apiRoom, apiReq } from "@/utility/axiosInstance"; // เพิ่ม apiReq เพื่อดึง status ถ้าจำเป็น
 

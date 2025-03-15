@@ -99,7 +99,7 @@ const ResponsiveSidebar = () => {
                   >
                    
                   </svg>
-                  <span className="flex-1 ml-3 whitespace-nowrap">add Room</span>
+                  <span className="flex-1 ml-3 whitespace-nowrap">Add Room</span>
               </Link>
             </li>
             <li>
