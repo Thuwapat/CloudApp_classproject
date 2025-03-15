@@ -83,7 +83,6 @@ services:
       - authen_backend
     networks:
       - app-network
-<<<<<<< Updated upstream
 
   room_mgmt_backend:
     build:
@@ -103,27 +102,6 @@ services:
     networks:
       - app-network
 
-  frontend:
-    build:
-      context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules        # mount โค้ดจากเครื่อง host ไปที่ /app ใน container
-      - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
-      - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5001  # สำหรับ Room Request
-    command: npm run dev
-    depends_on:
-      - authen_backend
-      - room_req_backend
-    networks:
-      - app-network
-=======
   # frontend:
   #   build:
   #     context: ./frontend      # ชี้ไปที่โฟลเดอร์ frontend ที่มี Dockerfile
@@ -136,15 +114,14 @@ services:
   #     - frontend_next:/app/.next       # ใช้ anonymous volume สำหรับ node_modules
   #   environment:
   #     - NODE_ENV=development
-  #     - NEXT_PUBLIC_API_AUTH_URL=https://localhost:5000  # สำหรับ Authentication
-  #     - NEXT_PUBLIC_API_ROOM_URL=https://localhost:5001  # สำหรับ Room Management
+  #     - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
+  #     - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5001  # สำหรับ Room Request
   #   command: npm run dev
   #   depends_on:
   #     - authen_backend
   #     - room_req_backend
   #   networks:
   #     - app-network
->>>>>>> Stashed changes
 
 volumes:
   auth_db_data:

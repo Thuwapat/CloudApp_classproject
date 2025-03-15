@@ -8,17 +8,10 @@ from models import db, User
 import os
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import LegacyApplicationClient
-from flask_migrate import Migrate
 from models import User 
 
 app = Flask(__name__)
-<<<<<<< Updated upstream
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "http://localhost:5001"])
-=======
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://localhost:5001"])
-migrate = Migrate(app, db)
-
->>>>>>> Stashed changes
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://myuser:mypass@localhost:5432/auth_db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -36,39 +36,10 @@ export default function AddNewRoom() {
     const value = e.target.value;
     setRoomId(value);
 
-<<<<<<< Updated upstream
     if (value === "") {
       setRoomIdError("Room ID is required");
       return;
     }
-=======
-    // ถ้าไม่มีการกรอกข้อมูลให้เคลียร์ error
-    if (value === '') {
-      setcapaError('');
-      return;
-    }
-
-    // แปลงค่าเป็นตัวเลข
-    const numericValue = Number(value);
-
-    // ตรวจสอบว่าแปลงค่าได้หรือไม่
-    if (isNaN(numericValue)) {
-      setcapaError('กรุณากรอกหมายเลขที่ถูกต้อง');
-      return;
-    }
-
-
-
-    if (value !== '') {
-      const numericValue = Number(value);
-      if (numericValue < 5 || numericValue > 80) {
-        setcapaError('The value must be between 5 and 80');
-      } else {
-        setcapaError('');
-      }
-    }
-  };
->>>>>>> Stashed changes
 
     const numericValue = Number(value);
     if (isNaN(numericValue) || numericValue <= 0) {
