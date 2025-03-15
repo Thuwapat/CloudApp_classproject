@@ -162,7 +162,11 @@ def validate_user_by_id():
         print(f"Decoding token for /validate-user-by-id: {token[:10]}...")
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
         print(f"Decoded token data: {data}")
-        if data.get('role') not in ['admin', 'teacher']:
+
+        # ตรวจสอบว่า token มี role ที่อนุญาต (เช่น admin หรือมาจาก internal call)
+        allowed_roles = ['admin', 'teacher']
+        if data.get('role') not in allowed_roles:
+            print(f"Unauthorized role: {data.get('role')}")
             return jsonify({'error': 'Unauthorized'}), 403
 
         user = User.query.get(user_id)

@@ -3,8 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
 import requests
+import jwt
+import datetime
 from models import db, Room, RoomUsageLog, create_room_log_table
 from sqlalchemy import inspect, text
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://localhost:5001"])
@@ -18,7 +22,6 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# ฟังก์ชันตรวจสอบ token
 def validate_token(token):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
     print(f"Calling validate_token with token: {token[:10]}...")
@@ -40,23 +43,39 @@ def validate_token(token):
 # ฟังก์ชันดึงข้อมูลผู้ใช้จาก authen_service
 def get_user_info(user_id):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
-    internal_token = os.getenv('INTERNAL_TOKEN', 'your-internal-token')
-    if not internal_token:
-        print("INTERNAL_TOKEN is not set in environment variables")
+    secret_key = os.getenv('SECRET_KEY', 'your-secret-key')  # ใช้ SECRET_KEY จาก environment
+    if not secret_key:
+        print("SECRET_KEY is not set in environment variables")
+        return {'name': 'Unknown', 'role': 'Unknown'}
+
+    # สร้าง token ชั่วคราวสำหรับการเรียก internal
+    internal_token = jwt.encode(
+        {'role': 'admin', 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5)},
+        secret_key,
+        algorithm='HS256'
+    )
+
+    session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount('http://', HTTPAdapter(max_retries=retries))
+
     try:
-        response = requests.post(
+        print(f"Fetching user info for user_id {user_id} from {auth_url}/validate-user-by-id with token: {internal_token[:10]}...")
+        response = session.post(
             f'{auth_url}/validate-user-by-id',
             json={'user_id': user_id},
             headers={'Authorization': f'Bearer {internal_token}'},
             verify=False,
             timeout=5
         )
+        print(f"Response from /validate-user-by-id: Status {response.status_code}, Text: {response.text}")
         if response.status_code == 200:
             user_data = response.json()
             return {
                 'name': f"{user_data.get('first_name', 'Unknown')} {user_data.get('last_name', 'Unknown')}",
                 'role': user_data.get('role', 'Unknown')
             }
+        print(f"Failed to fetch user info, status code: {response.status_code}, response: {response.text}")
         return {'name': 'Unknown', 'role': 'Unknown'}
     except requests.RequestException as e:
         print(f"Error fetching user info for user_id {user_id}: {e}")

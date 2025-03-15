@@ -59,6 +59,7 @@ services:
     environment:
       - FLASK_ENV=development  # ตั้งค่า environment สำหรับ Flask (เปลี่ยนเป็น production เมื่อต้องการ)
       - DATABASE_URL=postgresql://myuser:mypass@auth_db:5432/auth_db
+      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
       - GOOGLE_CLIENT_ID=1033311153846-985omsfscb3beu6u42c0qpo6k6m5vheg.apps.googleusercontent.com
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
@@ -78,6 +79,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
+      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
     depends_on:
       - room_req_db
       - authen_backend
@@ -96,6 +98,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_mgmt_db:5432/room_mgmt_db
+      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
     depends_on:
       - room_req_db
       - authen_backend
