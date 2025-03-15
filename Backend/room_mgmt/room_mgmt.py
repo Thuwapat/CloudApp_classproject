@@ -43,10 +43,10 @@ def validate_token(token):
 # ฟังก์ชันดึงข้อมูลผู้ใช้จาก authen_service
 def get_user_info(user_id):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
-    secret_key = os.getenv('SECRET_KEY', 'your-secret-key')  # ใช้ SECRET_KEY จาก environment
+    secret_key = os.getenv('SECRET_KEY', 'your-secret-key')
     if not secret_key:
         print("SECRET_KEY is not set in environment variables")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
     # สร้าง token ชั่วคราวสำหรับการเรียก internal
     internal_token = jwt.encode(
@@ -73,13 +73,14 @@ def get_user_info(user_id):
             user_data = response.json()
             return {
                 'name': f"{user_data.get('first_name', 'Unknown')} {user_data.get('last_name', 'Unknown')}",
-                'role': user_data.get('role', 'Unknown')
+                'role': user_data.get('role', 'Unknown'),
+                'email': user_data.get('email', 'N/A')  # เพิ่ม email
             }
         print(f"Failed to fetch user info, status code: {response.status_code}, response: {response.text}")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
     except requests.RequestException as e:
         print(f"Error fetching user info for user_id {user_id}: {e}")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
 # เพิ่มห้องใหม่
 @app.route('/rooms', methods=['POST'])
