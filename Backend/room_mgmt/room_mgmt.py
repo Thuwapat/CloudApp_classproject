@@ -43,10 +43,10 @@ def validate_token(token):
 # ฟังก์ชันดึงข้อมูลผู้ใช้จาก authen_service
 def get_user_info(user_id):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
-    secret_key = os.getenv('SECRET_KEY', 'your-secret-key')  # ใช้ SECRET_KEY จาก environment
+    secret_key = os.getenv('SECRET_KEY', 'your-secret-key')
     if not secret_key:
         print("SECRET_KEY is not set in environment variables")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
     # สร้าง token ชั่วคราวสำหรับการเรียก internal
     internal_token = jwt.encode(
@@ -73,13 +73,14 @@ def get_user_info(user_id):
             user_data = response.json()
             return {
                 'name': f"{user_data.get('first_name', 'Unknown')} {user_data.get('last_name', 'Unknown')}",
-                'role': user_data.get('role', 'Unknown')
+                'role': user_data.get('role', 'Unknown'),
+                'email': user_data.get('email', 'N/A')  # เพิ่ม email
             }
         print(f"Failed to fetch user info, status code: {response.status_code}, response: {response.text}")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
     except requests.RequestException as e:
         print(f"Error fetching user info for user_id {user_id}: {e}")
-        return {'name': 'Unknown', 'role': 'Unknown'}
+        return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
 # เพิ่มห้องใหม่
 @app.route('/rooms', methods=['POST'])
@@ -199,32 +200,76 @@ def log_room_usage():
         return jsonify({'error': 'Internal server error'}), 500
 
 # ดึง Logs ตาม roomid
-@app.route('/room-usage-logs/room/<int:roomid>', methods=['GET'])
-def get_logs_by_room(roomid):
-    room = db.session.get(Room, roomid)
-    if not room:
-        return jsonify({'error': 'Room not found'}), 404
-
-    table_name = f"room_{roomid}_logs"
+@app.route('/room-usage-logs/room/<int:roomid>', methods=['GET', 'PUT'])
+def manage_logs_by_room(roomid):
     inspector = inspect(db.engine)
-    if not inspector.has_table(table_name):
+
+    if request.method == 'GET':
+        room = db.session.get(Room, roomid)
+        if not room:
+            return jsonify({'error': 'Room not found'}), 404
+
+        table_name = f"room_{roomid}_logs"
+        if not inspector.has_table(table_name):
+            try:
+                create_room_log_table(roomid)
+            except Exception as e:
+                print(f"Failed to create log table for room {roomid}: {e}")
+                return jsonify({'error': 'Failed to create log table'}), 500
+
+        room_log = RoomUsageLog(roomid)
+        table = room_log.table
+
         try:
-            create_room_log_table(roomid)
+            with db.engine.connect() as conn:
+                result = conn.execute(table.select()).fetchall()
+                logs = []
+                for row in result:
+                    user_info = get_user_info(row.user_id)
+                    log_entry = room_log.to_dict(row)
+                    log_entry['user_name'] = user_info['name']
+                    log_entry['email'] = user_info.get('email', 'N/A')
+                    log_entry['role'] = user_info['role']
+                    logs.append(log_entry)
+            return jsonify(logs), 200
         except Exception as e:
-            print(f"Failed to create log table for room {roomid}: {e}")
-            return jsonify({'error': 'Failed to create log table'}), 500
+            print(f"Error fetching logs: {e}")
+            return jsonify({'error': 'Internal server error'}), 500
 
-    room_log = RoomUsageLog(roomid)
-    table = room_log.table
+    elif request.method == 'PUT':
+        data = request.get_json()
+        user_id = data.get('user_id')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        status = data.get('status')
 
-    try:
-        with db.engine.connect() as conn:
-            result = conn.execute(table.select()).fetchall()
-            logs = [room_log.to_dict(row) for row in result]
-        return jsonify(logs), 200
-    except Exception as e:
-        print(f"Error fetching logs: {e}")
-        return jsonify({'error': 'Internal server error'}), 500
+        if not all([user_id, start_time, end_time, status]):
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        table_name = f"room_{roomid}_logs"
+        if not inspector.has_table(table_name):
+            return jsonify({'error': 'Log table not found'}), 404
+
+        room_log = RoomUsageLog(roomid)
+        table = room_log.table
+
+        try:
+            with db.engine.connect() as conn:
+                conn.execute(
+                    table.update()
+                    .where(
+                        (table.c.user_id == user_id) &
+                        (table.c.start_time == start_time) &
+                        (table.c.end_time == end_time)
+                    )
+                    .values(status=status)
+                )
+                conn.commit()
+                print(f"Updated log for room {roomid}, user {user_id}, status {status}")
+            return jsonify({'message': 'Log updated'}), 200
+        except Exception as e:
+            print(f"Error updating log: {e}")
+            return jsonify({'error': 'Internal server error'}), 500
 
 # ดึง Logs ของทุกห้อง
 @app.route('/room-usage-logs/all', methods=['GET'])

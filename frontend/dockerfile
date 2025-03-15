@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # ติดตั้ง dependencies
-RUN npm install chart.js react-chartjs-2
+RUN npm install
 
 # คัดลอกไฟล์โค้ดทั้งหมดเข้า container (สำหรับการ build ครั้งแรก)
 COPY . .

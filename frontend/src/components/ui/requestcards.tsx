@@ -10,7 +10,7 @@ interface Request {
   end_time: string;
   reason: string;
   status: string;
-  requester_name: string; 
+  requester_name: string;
 }
 
 export default function RequestCards() {
@@ -20,8 +20,17 @@ export default function RequestCards() {
 
   const fetchRequests = async () => {
     try {
-      const response = await apiReq.get('/requests');
-      setRequests(response.data);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      const response = await apiReq.get('/requests', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // กรองเฉพาะคำขอที่มี status เป็น P (Pending)
+      const pendingRequests = response.data.filter((req: Request) => req.status === 'P');
+      setRequests(pendingRequests);
     } catch (err) {
       setError('Failed to load requests');
       console.error('Error fetching requests:', err);
@@ -36,8 +45,14 @@ export default function RequestCards() {
 
   const handleApprove = async (requestId: number) => {
     try {
-      await apiReq.put(`/requests/${requestId}/approve`);
-      // รีเฟรชข้อมูลจาก backend
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      await apiReq.put(`/requests/${requestId}/approve`, {}, { // เพิ่ม {} เพื่อให้แน่ใจว่า body ว่าง
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchRequests();
     } catch (err) {
       setError('Failed to approve request');
@@ -47,8 +62,14 @@ export default function RequestCards() {
 
   const handleReject = async (requestId: number) => {
     try {
-      await apiReq.put(`/requests/${requestId}/reject`);
-      // รีเฟรชข้อมูลจาก backend
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      await apiReq.put(`/requests/${requestId}/reject`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchRequests();
     } catch (err) {
       setError('Failed to reject request');
@@ -72,9 +93,19 @@ export default function RequestCards() {
               <p className="text-gray-600">Start: {new Date(request.start_time).toLocaleString()}</p>
               <p className="text-gray-600">End: {new Date(request.end_time).toLocaleString()}</p>
               <p className="text-gray-600">Reason: {request.reason}</p>
-              <p className="text-gray-600">Requester: {request.requester_name}</p> {/* แสดงชื่อผู้ขอ */}
-              <p className="text-gray-600">Status: {request.status}</p>
-              {request.status === 'Pending' && (
+              <p className="text-gray-600">Requester: {request.requester_name}</p>
+              <p className="text-gray-600">
+                <span
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    request.status === "P" ? "bg-yellow-400 text-black" :
+                    request.status === "A" ? "bg-green-500 text-white" :
+                    request.status === "R" ? "bg-red-500 text-white" : "bg-gray-500 text-white"
+                  }`}
+                >
+                  {request.status}
+                </span>
+              </p>
+              {request.status === 'P' && (
                 <div className="mt-2 space-x-2">
                   <button
                     onClick={() => handleApprove(request.id)}

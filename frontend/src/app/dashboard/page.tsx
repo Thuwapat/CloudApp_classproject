@@ -49,6 +49,10 @@ export default function Dashboard() {
   if (!isAuthorized) {
     return null;
   }
+// ฟังก์ชันสำหรับนำทางไปยัง /addroom
+const handleAddRoom = () => {
+  router.push('/addroom');
+};
 
   return (
     <div className="flex min-h-screen bg-[#F5F3EF]">
@@ -62,8 +66,7 @@ export default function Dashboard() {
             
             {/* Room List (กิน 2 แถว ซ้ายมือ) */}
             <div className="row-span-2 bg-white p-4 shadow rounded-lg overflow-y-auto">
-              <Link href="/addroom">
-              <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
+              <button onClick={handleAddRoom} className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
               </button>
               

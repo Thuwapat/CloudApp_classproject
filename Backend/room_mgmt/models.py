@@ -43,7 +43,8 @@ def create_room_log_table(roomid):
         Column('start_time', DateTime, nullable=False),
         Column('end_time', DateTime, nullable=False),
         Column('purpose', String(100)),
-        Column('created_at', DateTime, server_default=db.func.current_timestamp())
+        Column('created_at', DateTime, server_default=db.func.current_timestamp()),
+        Column('status', String(1), default='A')  # เพิ่มฟิลด์ status กับค่า default 'A'
     )
 
     # สร้างตารางใน database
@@ -71,5 +72,6 @@ class RoomUsageLog:
             'start_time': row.start_time.isoformat(),
             'end_time': row.end_time.isoformat(),
             'purpose': row.purpose,
-            'created_at': row.created_at.isoformat()
+            'created_at': row.created_at.isoformat(),
+            'status': getattr(row, 'status', 'A')  # เพิ่ม status ใน dict
         }
