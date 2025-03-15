@@ -1,82 +1,131 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
-
-const dummyLogs = [
-    // Room 101
-    { id: 1, name: "John Doe", studentId: "123456", email: "john@example.com", bookingTime: "16:00 - 18:00", status: "A", checkIn: "16:05", checkOut: "18:00", roomID: "101", photo: "/dummy-photo1.jpg" },
-    { id: 2, name: "Jane Smith", studentId: "654321", email: "jane@example.com", bookingTime: "13:00 - 16:00", status: "A", checkIn: "13:00", checkOut: "16:02", roomID: "101", photo: "/dummy-photo2.jpg" },
-    { id: 3, name: "Bob White", studentId: "789012", email: "bob@example.com", bookingTime: "14:00 - 17:00", status: "A", checkIn: "14:10", checkOut: "17:00", roomID: "101", photo: "/dummy-photo3.jpg" },
-    // Room 102
-    { id: 4, name: "Alice Brown", studentId: "234567", email: "alice@example.com", bookingTime: "10:00 - 12:00", status: "A", checkIn: "10:05", checkOut: "12:00", roomID: "102", photo: "/dummy-photo4.jpg" },
-    { id: 5, name: "Tom Hanks", studentId: "345678", email: "tom@example.com", bookingTime: "12:00 - 14:00", status: "A", checkIn: "12:10", checkOut: "14:00", roomID: "102", photo: "/dummy-photo5.jpg" },
-    { id: 6, name: "Sophia Lee", studentId: "456789", email: "sophia@example.com", bookingTime: "14:00 - 16:00", status: "A", checkIn: "14:05", checkOut: "16:00", roomID: "102", photo: "/dummy-photo6.jpg" },
-  
-    // Room 103
-    { id: 7, name: "Ethan Hunt", studentId: "567890", email: "ethan@example.com", bookingTime: "16:00 - 18:00", status: "A", checkIn: "16:15", checkOut: "18:00", roomID: "103", photo: "/dummy-photo7.jpg" },
-    { id: 8, name: "Olivia Adams", studentId: "678901", email: "olivia@example.com", bookingTime: "18:00 - 20:00", status: "A", checkIn: "18:10", checkOut: "20:00", roomID: "103", photo: "/dummy-photo8.jpg" },
-    { id: 9, name: "Jack Sparrow", studentId: "789012", email: "jack@example.com", bookingTime: "20:00 - 22:00", status: "A", checkIn: "20:05", checkOut: "22:00", roomID: "103", photo: "/dummy-photo9.jpg" },
-  
-    // Room 104
-    { id: 10, name: "Emma Watson", studentId: "890123", email: "emma@example.com", bookingTime: "08:00 - 10:00", status: "A", checkIn: "08:05", checkOut: "10:00", roomID: "104", photo: "/dummy-photo10.jpg" },
-    { id: 11, name: "Daniel Craig", studentId: "901234", email: "daniel@example.com", bookingTime: "10:00 - 12:00", status: "A", checkIn: "10:10", checkOut: "12:00", roomID: "104", photo: "/dummy-photo11.jpg" },
-    { id: 12, name: "Scarlett Johansson", studentId: "012345", email: "scarlett@example.com", bookingTime: "12:00 - 14:00", status: "A", checkIn: "12:05", checkOut: "14:00", roomID: "104", photo: "/dummy-photo12.jpg" },
-  
-    // Room 105
-    { id: 13, name: "Chris Evans", studentId: "112345", email: "chris@example.com", bookingTime: "14:00 - 16:00", status: "A", checkIn: "14:05", checkOut: "16:00", roomID: "105", photo: "/dummy-photo13.jpg" },
-    { id: 14, name: "Mark Ruffalo", studentId: "223456", email: "mark@example.com", bookingTime: "16:00 - 18:00", status: "A", checkIn: "16:10", checkOut: "18:00", roomID: "105", photo: "/dummy-photo14.jpg" },
-    { id: 15, name: "Robert Downey Jr.", studentId: "334567", email: "robert@example.com", bookingTime: "18:00 - 20:00", status: "A", checkIn: "18:15", checkOut: "20:00", roomID: "105", photo: "/dummy-photo15.jpg" },
-];
+import { apiRoom, apiAuth } from "@/utility/axiosInstance";
 
 export default function RoomAccessLog() {
   const { roomId } = useParams();
   const router = useRouter();
   const [filteredLogs, setFilteredLogs] = useState([]);
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(null);
   const [firstName, setFirstName] = useState("User");
 
   useEffect(() => {
-    if (!roomId) return;
-    setFilteredLogs(dummyLogs.filter((log) => log.roomID === roomId));
-  }, [roomId]);
+    const checkAuthorization = () => {
+      const user = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login?error=Please log in to access the dashboard");
+        return;
+      }
 
-    if (!token) {
-      router.push("/login?error=Please log in to access the dashboard");
-      return;
-    }
+      try {
+        const decoded = JSON.parse(atob(token.split(".")[1]));
+        const role = decoded.role;
 
-    try {
-      const decoded = JSON.parse(atob(token.split(".")[1]));
-      const role = decoded.role;
-
-      if (role === "teacher" || role === "admin") {
-        setIsAuthorized(true);
-      } else {
-        router.push("/?error=Unauthorized access");
+        if (role === "teacher" || role === "admin") {
+          setIsAuthorized(true);
+        } else {
+          router.push("/?error=Unauthorized access");
+          setIsAuthorized(false);
+        }
+      } catch (error) {
+        router.push("/login?error=Invalid token");
         setIsAuthorized(false);
       }
-    } catch (error) {
-      router.push("/login?error=Invalid token");
-      setIsAuthorized(false);
-    }
 
-    if (user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        setFirstName(parsedUser.first_name || "User");
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+      if (user) {
+        try {
+          const parsedUser = JSON.parse(user);
+          setFirstName(parsedUser.first_name || "User");
+        } catch (error) {
+          console.error("Error parsing user data:", error);
+        }
       }
-    }
+    };
+
+    checkAuthorization();
   }, [router]);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      if (!roomId || !isAuthorized) return;
+
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No token found");
+        }
+
+        // ดึง logs จาก room_mgmt_backend
+        const logsResponse = await apiRoom.get(`/room-usage-logs/room/${roomId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const logs = logsResponse.data;
+
+        // ดึงข้อมูลผู้ใช้สำหรับแต่ละ log
+        const logsWithUserData = await Promise.all(
+          logs.map(async (log) => {
+            try {
+              // สร้าง internal token สำหรับเรียก authen_backend (สมมติว่า frontend ต้องส่ง token ที่มี role admin)
+              const internalToken = token; // ในความเป็นจริง อาจต้องสร้าง token ใหม่หรือใช้ token เดิม
+
+              const userResponse = await apiAuth.post(
+                "/validate-user-by-id",
+                { user_id: log.user_id },
+                {
+                  headers: {
+                    Authorization: `Bearer ${internalToken}`,
+                  },
+                }
+              );
+              const user = userResponse.data;
+
+              return {
+                id: log.logid,
+                name: `${user.first_name} ${user.last_name}`,
+                studentId: user.id.toString(), // สมมติว่าไม่มี studentId ใช้ user.id แทน
+                email: user.email,
+                bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
+                status: "A", // สมมติว่าเป็น Approved
+                checkIn: new Date(log.start_time).toLocaleTimeString(),
+                checkOut: new Date(log.end_time).toLocaleTimeString(),
+                roomID: roomId,
+                photo: "/dummy-photo.jpg", // Dummy photo
+              };
+            } catch (error) {
+              console.error(`Error fetching user data for user_id ${log.user_id}:`, error);
+              return {
+                id: log.logid,
+                name: "Unknown",
+                studentId: "N/A",
+                email: "N/A",
+                bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
+                status: "A",
+                checkIn: new Date(log.start_time).toLocaleTimeString(),
+                checkOut: new Date(log.end_time).toLocaleTimeString(),
+                roomID: roomId,
+                photo: "/dummy-photo.jpg",
+              };
+            }
+          })
+        );
+
+        setFilteredLogs(logsWithUserData);
+      } catch (error) {
+        console.error("Error fetching logs:", error);
+        setFilteredLogs([]);
+      }
+    };
+
+    fetchLogs();
+  }, [roomId, isAuthorized]);
 
   if (isAuthorized === null) {
     return <div>Loading...</div>;
