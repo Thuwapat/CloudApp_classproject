@@ -69,8 +69,6 @@ const handleAddRoom = () => {
               <button onClick={handleAddRoom} className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
               </button>
-              
-              </Link>
               <RoomCards />
             </div>
 

@@ -66,7 +66,7 @@ const Sidebar = () => {
           </li>
           <li>
             <Link href="/addroom" className="flex items-center text-[#221C3FFF] hover:text-[#E08184FF]">
-              <span className="mr-2"></span> add Room
+              <span className="mr-2"></span> Add Room
             </Link>
           </li>
           
