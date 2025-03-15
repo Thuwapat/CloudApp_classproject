@@ -145,7 +145,7 @@ services:
       - NEXT_PUBLIC_API_REQ_URL=http://localhost:5001  # สำหรับ Request Service
       - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5002 # สำหรับ Room Mgmt
       - NEXT_PUBLIC_API_KEY_IMAGE=1852c3fd33edbe8c95231e5a74106018dcec3a448eacb0d9270f28821033ea4a # สำหรับดึงรูปจากกลุ่ม 1
-    command: npm run dev
+    command: npm run 
     depends_on:
       - authen_backend
       - room_req_backend
