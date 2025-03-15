@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
-import { apiRoom, apiAuth } from "@/utility/axiosInstance";
+import { apiRoom } from "@/utility/axiosInstance";
 
 export default function RoomAccessLog() {
   const { roomId } = useParams();
@@ -69,57 +69,22 @@ export default function RoomAccessLog() {
         });
         const logs = logsResponse.data;
 
-        // ดึงข้อมูลผู้ใช้สำหรับแต่ละ log
-        const logsWithUserData = await Promise.all(
-          logs.map(async (log) => {
-            try {
-              // สร้าง internal token สำหรับเรียก authen_backend (สมมติว่า frontend ต้องส่ง token ที่มี role admin)
-              const internalToken = token; // ในความเป็นจริง อาจต้องสร้าง token ใหม่หรือใช้ token เดิม
-
-              const userResponse = await apiAuth.post(
-                "/validate-user-by-id",
-                { user_id: log.user_id },
-                {
-                  headers: {
-                    Authorization: `Bearer ${internalToken}`,
-                  },
-                }
-              );
-              const user = userResponse.data;
-
-              return {
-                id: log.logid,
-                name: `${user.first_name} ${user.last_name}`,
-                studentId: user.id.toString(), // สมมติว่าไม่มี studentId ใช้ user.id แทน
-                email: user.email,
-                bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
-                status: "A", // สมมติว่าเป็น Approved
-                checkIn: new Date(log.start_time).toLocaleTimeString(),
-                checkOut: new Date(log.end_time).toLocaleTimeString(),
-                roomID: roomId,
-                photo: "/dummy-photo.jpg", // Dummy photo
-              };
-            } catch (error) {
-              console.error(`Error fetching user data for user_id ${log.user_id}:`, error);
-              return {
-                id: log.logid,
-                name: "Unknown",
-                studentId: "N/A",
-                email: "N/A",
-                bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
-                status: "A",
-                checkIn: new Date(log.start_time).toLocaleTimeString(),
-                checkOut: new Date(log.end_time).toLocaleTimeString(),
-                roomID: roomId,
-                photo: "/dummy-photo.jpg",
-              };
-            }
-          })
-        );
+        const logsWithUserData = logs.map((log) => ({
+          id: log.logid,
+          name: log.user_name || "Unknown",
+          studentId: log.user_id ? log.user_id.toString() : "N/A",
+          email: log.email || "N/A",
+          bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
+          status: "A",
+          checkIn: new Date(log.start_time).toLocaleTimeString(),
+          checkOut: new Date(log.end_time).toLocaleTimeString(),
+          roomID: roomId,
+          photo: "/dummy-photo.jpg",
+        }));
 
         setFilteredLogs(logsWithUserData);
       } catch (error) {
-        console.error("Error fetching logs:", error);
+        console.error("Error fetching logs:", error.response?.data || error.message);
         setFilteredLogs([]);
       }
     };

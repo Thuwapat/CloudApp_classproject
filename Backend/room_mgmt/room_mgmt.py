@@ -220,7 +220,14 @@ def get_logs_by_room(roomid):
     try:
         with db.engine.connect() as conn:
             result = conn.execute(table.select()).fetchall()
-            logs = [room_log.to_dict(row) for row in result]
+            logs = []
+            for row in result:
+                user_info = get_user_info(row.user_id)  # ดึงข้อมูลผู้ใช้
+                log_entry = room_log.to_dict(row)
+                log_entry['user_name'] = user_info['name']
+                log_entry['email'] = user_info.get('email', 'N/A')
+                log_entry['role'] = user_info['role']
+                logs.append(log_entry)
         return jsonify(logs), 200
     except Exception as e:
         print(f"Error fetching logs: {e}")
