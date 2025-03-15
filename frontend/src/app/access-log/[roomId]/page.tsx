@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
-import { apiRoom } from "@/utility/axiosInstance";
+import { apiRoom, apiReq } from "@/utility/axiosInstance"; // เพิ่ม apiReq เพื่อดึง status ถ้าจำเป็น
 
 export default function RoomAccessLog() {
   const { roomId } = useParams();
@@ -61,26 +61,64 @@ export default function RoomAccessLog() {
           throw new Error("No token found");
         }
 
-        // ดึง logs จาก room_mgmt_backend
         const logsResponse = await apiRoom.get(`/room-usage-logs/room/${roomId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const logs = logsResponse.data;
+        let logs = logsResponse.data;
 
-        const logsWithUserData = logs.map((log) => ({
+        console.log("Logs from API:", logs);
+
+        // ถ้า backend ไม่ส่ง status มาหรือส่งไม่ถูกต้อง ดึง status จาก room_req
+        if (!logs.every((log) => log.status)) {
+          const requestsResponse = await apiReq.get(`/requests`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: { room_id: roomId },
+          });
+          const requests = requestsResponse.data;
+
+          logs = logs.map((log) => {
+            const matchingRequest = requests.find(
+              (req) =>
+                req.room_id === parseInt(roomId) &&
+                req.student_id === log.user_id &&
+                req.start_time === log.start_time &&
+                req.end_time === log.end_time
+            );
+            return {
+              ...log,
+              status: matchingRequest ? matchingRequest.status : "A",
+            };
+          });
+        }
+
+        // แปลงข้อมูล logs
+        let logsWithUserData = logs.map((log) => ({
           id: log.logid,
           name: log.user_name || "Unknown",
           studentId: log.user_id ? log.user_id.toString() : "N/A",
           email: log.email || "N/A",
           bookingTime: `${new Date(log.start_time).toLocaleTimeString()} - ${new Date(log.end_time).toLocaleTimeString()}`,
-          status: "A",
+          status: log.status || "A",
           checkIn: new Date(log.start_time).toLocaleTimeString(),
           checkOut: new Date(log.end_time).toLocaleTimeString(),
           roomID: roomId,
           photo: "/dummy-photo.jpg",
+          startTime: log.start_time, // เก็บ startTime เพื่อใช้ในการเรียงลำดับ
         }));
+
+        // กรองเฉพาะ logs ที่มี status เป็น A หรือ R
+        logsWithUserData = logsWithUserData.filter(
+          (log) => log.status === "A" || log.status === "R"
+        );
+
+        // เรียง logs จากล่าสุดไปเก่าสุด
+        logsWithUserData.sort((a, b) => 
+          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+        );
 
         setFilteredLogs(logsWithUserData);
       } catch (error) {
@@ -134,7 +172,15 @@ export default function RoomAccessLog() {
                       <td className="p-3 text-gray-800">{log.email}</td>
                       <td className="p-3 text-gray-800">{log.bookingTime}</td>
                       <td className="p-3">
-                        <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">{log.status}</span>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm ${
+                            log.status === "P" ? "bg-yellow-400 text-black" :
+                            log.status === "A" ? "bg-green-500 text-white" :
+                            log.status === "R" ? "bg-red-500 text-white" : "bg-gray-500 text-white"
+                          }`}
+                        >
+                          {log.status}
+                        </span>
                       </td>
                       <td className="p-3 text-gray-800">{log.checkIn}</td>
                       <td className="p-3 text-gray-800">{log.checkOut}</td>
