@@ -202,13 +202,14 @@ def log_room_usage():
 # ดึง Logs ตาม roomid
 @app.route('/room-usage-logs/room/<int:roomid>', methods=['GET', 'PUT'])
 def manage_logs_by_room(roomid):
+    inspector = inspect(db.engine)
+
     if request.method == 'GET':
         room = db.session.get(Room, roomid)
         if not room:
             return jsonify({'error': 'Room not found'}), 404
 
         table_name = f"room_{roomid}_logs"
-        inspector = inspect(db.engine)
         if not inspector.has_table(table_name):
             try:
                 create_room_log_table(roomid)
@@ -229,27 +230,6 @@ def manage_logs_by_room(roomid):
                     log_entry['user_name'] = user_info['name']
                     log_entry['email'] = user_info.get('email', 'N/A')
                     log_entry['role'] = user_info['role']
-                    # ดึง status จาก room_req
-                    room_req_url = os.getenv('ROOM_REQ_URL', 'http://room_req_backend:5001')
-                    try:
-                        token = request.headers.get('Authorization', 'Bearer <default-token>')
-                        response = requests.get(
-                            f'{room_req_url}/requests',
-                            params={'room_id': roomid, 'user_id': row.user_id},
-                            headers={'Authorization': token}
-                        )
-                        if response.status_code == 200:
-                            req_data = response.json()
-                            matching_request = next(
-                                (req for req in req_data if req['start_time'] == str(row.start_time) and req['end_time'] == str(row.end_time)),
-                                None
-                            )
-                            log_entry['status'] = matching_request['status'] if matching_request else 'A'
-                        else:
-                            log_entry['status'] = 'A'
-                    except requests.RequestException as e:
-                        print(f"Error fetching request status: {e}")
-                        log_entry['status'] = 'A'
                     logs.append(log_entry)
             return jsonify(logs), 200
         except Exception as e:
@@ -285,6 +265,7 @@ def manage_logs_by_room(roomid):
                     .values(status=status)
                 )
                 conn.commit()
+                print(f"Updated log for room {roomid}, user {user_id}, status {status}")
             return jsonify({'message': 'Log updated'}), 200
         except Exception as e:
             print(f"Error updating log: {e}")
