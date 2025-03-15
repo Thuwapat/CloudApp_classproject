@@ -2,11 +2,12 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
-from models import db, Room, RoomUsageLog
 import requests
+from models import db, Room, RoomUsageLog, create_room_log_table
+from sqlalchemy import inspect, text
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "http://localhost:5001"])
+CORS(app, origins=["http://localhost:3000", "https://localhost:3000", "https://localhost:5001"])
 
 # ตั้งค่า database
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_ROOM_MGMT_URL', 'postgresql://myuser:mypass@room_mgmt_db:5432/room_mgmt_db')
@@ -17,9 +18,10 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+# ฟังก์ชันตรวจสอบ token
 def validate_token(token):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
-    #print(f"Calling validate_token with token: {token[:10]}...")
+    print(f"Calling validate_token with token: {token[:10]}...")
     try:
         response = requests.post(
             f'{auth_url}/validate-user',
@@ -30,11 +32,11 @@ def validate_token(token):
         print(f"Response from /validate-user: Status {response.status_code}, Text: {response.text}")
         if response.status_code == 200:
             return response.json()
-        return None
+        return {'error': 'Invalid token', 'status': response.status_code}
     except requests.RequestException as e:
         print(f"Error validating token: {e}")
-        return None
-    
+        return {'error': f'Failed to validate token: {str(e)}', 'status': 500}
+
 # เพิ่มห้องใหม่
 @app.route('/rooms', methods=['POST'])
 def add_room():
@@ -43,8 +45,8 @@ def add_room():
         return jsonify({'error': 'Token is missing'}), 401
 
     user_data = validate_token(token.replace('Bearer ', ''))
-    if not user_data:
-        return jsonify({'error': 'Invalid token or authentication failed'}), 401
+    if 'error' in user_data:
+        return jsonify({'error': user_data['error']}), user_data['status']
     if user_data.get('role') not in ['admin', 'teacher']:
         return jsonify({'error': 'Unauthorized: Only admins or teachers can add rooms'}), 403
 
@@ -53,7 +55,7 @@ def add_room():
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Missing required fields'}), 400
 
-    if Room.query.get(data['roomid']):
+    if db.session.get(Room, data['roomid']):
         return jsonify({'error': 'Room ID already exists'}), 400
 
     new_room = Room(
@@ -66,6 +68,14 @@ def add_room():
     db.session.add(new_room)
     db.session.commit()
 
+    # สร้างตาราง Logs สำหรับห้องใหม่
+    try:
+        create_room_log_table(new_room.roomid)
+    except Exception as e:
+        print(f"Failed to create log table for room {new_room.roomid}: {e}")
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create log table for the room'}), 500
+
     return jsonify({'message': 'Room added successfully', 'room': new_room.to_dict()}), 201
 
 # ดึงข้อมูลห้องทั้งหมด
@@ -77,15 +87,19 @@ def get_rooms():
 # ดึงข้อมูลห้องจาก roomid
 @app.route('/rooms/<int:roomid>', methods=['GET'])
 def get_room(roomid):
-    room = Room.query.get_or_404(roomid)
+    room = db.session.get(Room, roomid)
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
     return jsonify(room.to_dict()), 200
 
 # อัปเดตข้อมูลห้อง
 @app.route('/rooms/<int:roomid>', methods=['PUT'])
 def update_room(roomid):
-    room = Room.query.get_or_404(roomid)
-    data = request.get_json()
+    room = db.session.get(Room, roomid)
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
 
+    data = request.get_json()
     room.roomname = data.get('roomname', room.roomname)
     room.type = data.get('type', room.type)
     room.capacity = data.get('capacity', room.capacity)
@@ -97,7 +111,16 @@ def update_room(roomid):
 # ลบห้อง
 @app.route('/rooms/<int:roomid>', methods=['DELETE'])
 def delete_room(roomid):
-    room = Room.query.get_or_404(roomid)
+    room = db.session.get(Room, roomid)
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
+
+    # ลบตาราง Logs ของห้องนี้
+    table_name = f"room_{roomid}_logs"
+    with db.engine.connect() as conn:
+        conn.execute(text(f"DROP TABLE IF EXISTS {table_name}"))
+        conn.commit()
+
     db.session.delete(room)
     db.session.commit()
     return jsonify({'message': 'Room deleted successfully'}), 200
@@ -110,33 +133,57 @@ def log_room_usage():
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Missing required fields'}), 400
 
-    room = Room.query.get(data['roomid'])
+    room = db.session.get(Room, data['roomid'])
     if not room:
         return jsonify({'error': 'Room not found'}), 404
 
-    new_log = RoomUsageLog(
-        roomid=data['roomid'],
-        user_id=data['user_id'],
-        start_time=data['start_time'],
-        end_time=data['end_time'],
-        purpose=data.get('purpose', '')
-    )
-    db.session.add(new_log)
-    db.session.commit()
+    room_log = RoomUsageLog(data['roomid'])
+    table = room_log.table
 
-    return jsonify({'message': 'Room usage logged successfully', 'log': new_log.to_dict()}), 201
-
-# ดึง Logs การใช้งานทั้งหมด
-@app.route('/room-usage-logs', methods=['GET'])
-def get_room_usage_logs():
-    logs = RoomUsageLog.query.all()
-    return jsonify([log.to_dict() for log in logs]), 200
+    try:
+        with db.engine.connect() as conn:
+            conn.execute(
+                table.insert().values(
+                    user_id=data['user_id'],
+                    start_time=data['start_time'],
+                    end_time=data['end_time'],
+                    purpose=data.get('purpose', '')
+                )
+            )
+            conn.commit()
+        return jsonify({'message': 'Room usage logged successfully'}), 201
+    except Exception as e:
+        print(f"Error logging room usage: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 # ดึง Logs ตาม roomid
 @app.route('/room-usage-logs/room/<int:roomid>', methods=['GET'])
 def get_logs_by_room(roomid):
-    logs = RoomUsageLog.query.filter_by(roomid=roomid).all()
-    return jsonify([log.to_dict() for log in logs]), 200
+    room = db.session.get(Room, roomid)
+    if not room:
+        return jsonify({'error': 'Room not found'}), 404
+
+    # ตรวจสอบและสร้างตาราง Logs หากยังไม่มี
+    table_name = f"room_{roomid}_logs"
+    inspector = inspect(db.engine)
+    if not inspector.has_table(table_name):
+        try:
+            create_room_log_table(roomid)
+        except Exception as e:
+            print(f"Failed to create log table for room {roomid}: {e}")
+            return jsonify({'error': 'Failed to create log table'}), 500
+
+    room_log = RoomUsageLog(roomid)
+    table = room_log.table
+
+    try:
+        with db.engine.connect() as conn:
+            result = conn.execute(table.select()).fetchall()
+            logs = [room_log.to_dict(row) for row in result]
+        return jsonify(logs), 200
+    except Exception as e:
+        print(f"Error fetching logs: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5002)
