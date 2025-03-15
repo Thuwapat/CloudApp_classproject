@@ -22,7 +22,7 @@ const TemperatureMonitor = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md h-[334px] overflow-y-auto">
+    <div className="p-6 bg-white rounded-xl shadow-md h-full overflow-y-auto">
       <h3 className="text-xl font-semibold text-[#221C3FFF] mb-4">Temperature Monitoring</h3>
       <ul className="space-y-2">
         {temperatures.map((temp, index) => (
