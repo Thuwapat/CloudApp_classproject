@@ -1,6 +1,7 @@
+# COE_Access
+
 ![image](https://github.com/user-attachments/assets/e695ea4e-51e4-4f77-a0b1-36180c0129ed)
 
-# COE_Access
 ## Project Setup
 1. git clone https://github.com/Thuwapat/CloudApp_classproject.git
 2. docker-compose up -d
