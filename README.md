@@ -5,8 +5,9 @@
 1. git clone https://github.com/Thuwapat/CloudApp_classproject.git
 2. docker-compose up -d
 3. ไปที่ http://localhost:3000
+   
+![COE_Access (2)](https://github.com/user-attachments/assets/f75d2719-fc0b-460f-84c9-6b7bda07cc20)
 
-![COE_Access (1)](https://github.com/user-attachments/assets/64ddcddf-cc3e-4ee8-a12f-e9b664e8c904)
 
 ## SSL Cert Command using openssl via git bash (กรณอยากใช้ OAuth 2.0 ของ Google)
 ## ขั้นตอนที่ 1 : Run commeand 
