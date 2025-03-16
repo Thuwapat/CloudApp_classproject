@@ -1,6 +1,6 @@
 # COE_Access
 ## Project Setup
-1. git clone
+1. git clone https://github.com/Thuwapat/CloudApp_classproject.git
 2. docker-compose up -d
 3. ไปที่ http://localhost:3000
 
