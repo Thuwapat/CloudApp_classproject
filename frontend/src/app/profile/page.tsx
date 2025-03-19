@@ -55,13 +55,12 @@ export default function ProfilePage() {
     }
   }, [router]);
 
-  // โหลดข้อมูลผู้ใช้จาก localStorage และแปลง null เป็น ""
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser({
-        first_name: parsedUser.first_name ?? "", // แปลง null เป็น ""
+        first_name: parsedUser.first_name ?? "", 
         last_name: parsedUser.last_name ?? "",
         email: parsedUser.email ?? "",
         rfid: parsedUser.rfid ?? "",
@@ -126,7 +125,6 @@ export default function ProfilePage() {
     try {
       const response = await apiAuth.put(`/profile/${userId}`, payload);
       const updatedData = response.data;
-      // แปลง null เป็น "" ก่อนเก็บใน localStorage
       const updatedUser = {
         ...updatedData.user,
         first_name: updatedData.user.first_name ?? "",
@@ -158,7 +156,7 @@ export default function ProfilePage() {
                   <label className="block text-gray-700 mb-1">First Name</label>
                   <Input
                     type="text"
-                    name="first_name" // เปลี่ยน name ให้ตรงกับ key ใน user
+                    name="first_name"
                     placeholder="First Name"
                     value={user.first_name}
                     onChange={handleChange}
@@ -171,7 +169,7 @@ export default function ProfilePage() {
                   <label className="block text-gray-700 mb-1">Last Name</label>
                   <Input
                     type="text"
-                    name="last_name" // เปลี่ยน name ให้ตรงกับ key ใน user
+                    name="last_name"
                     placeholder="Last Name"
                     value={user.last_name}
                     onChange={handleChange}

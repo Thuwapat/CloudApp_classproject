@@ -51,7 +51,6 @@ export default function Dashboard() {
   if (!isAuthorized) {
     return null;
   }
-// ฟังก์ชันสำหรับนำทางไปยัง /addroom
 const handleAddRoom = () => {
   router.push('/addroom');
 };
@@ -63,10 +62,8 @@ const handleAddRoom = () => {
         <ResponsiveSidebar />
 
         <main className="p-6 pt-20 pl-70">
-          {/* ใช้ Grid Layout */}
           <div className="grid grid-cols-3 grid-rows-2 gap-6 h-[80vh]">
             
-            {/* Room List (กิน 2 แถว ซ้ายมือ) */}
             <div className="row-span-2 bg-white p-4 shadow rounded-lg overflow-y-auto">
               <button onClick={handleAddRoom} className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 mb-4">
                 + Add Room
@@ -74,17 +71,14 @@ const handleAddRoom = () => {
               <RoomCards />
             </div>
 
-            {/* Temperature Monitoring (แถวบนกลาง) */}
             <div className="bg-white p-4 shadow rounded-lg">
               <TemperatureMonitor />
             </div>
 
-            {/* Request Panel (กิน 2 แถว ขวาสุด) */}
             <div className="row-span-2 bg-white p-4 shadow rounded-lg">
               <RequestCards />
             </div>
 
-            {/* Access Logs (แถวล่างกลาง) */}
             <div className="bg-white p-4 shadow rounded-lg">
               <Logs />
             </div>

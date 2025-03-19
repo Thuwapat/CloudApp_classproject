@@ -40,7 +40,7 @@ def validate_token_for_user(user_id, token):
         response = requests.post(
             f'{auth_url}/validate-user-by-id',
             json={'user_id': user_id},
-            headers={'Authorization': f'Bearer {token}'},  # ใช้ token จาก request
+            headers={'Authorization': f'Bearer {token}'}, 
             verify=False,
             timeout=5
         )

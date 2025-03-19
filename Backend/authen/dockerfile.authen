@@ -1,20 +1,13 @@
-# เลือก base image ของ Python เวอร์ชันที่ต้องการ
 FROM python:3.9-slim
 
-# ตั้ง working directory ใน container
 WORKDIR /app/authen
 
-# คัดลอกไฟล์ requirements.txt ไปยัง container
 COPY authen/requirements.txt .
 
-# ติดตั้ง dependencies ตาม requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# คัดลอกไฟล์ทั้งหมดใน authen ไปยัง container
 COPY authen/ .
 
-# กำหนด port ที่ต้องการให้ container เปิด
 EXPOSE 5000
 
-# คำสั่งเริ่มต้นเมื่อ container รัน
 CMD ["python", "authen_app.py"]

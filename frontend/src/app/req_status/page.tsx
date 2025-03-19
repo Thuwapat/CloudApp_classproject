@@ -58,12 +58,10 @@ export default function RequestStatus() {
         let allRequests = response.data;
         console.log("Requests from API:", allRequests);
 
-        // เรียงคำขอจากล่าสุดไปเก่าสุด (ตาม start_time)
         allRequests.sort((a: Request, b: Request) => 
           new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
         );
 
-        // เลือกเฉพาะ 5 คำขอ ล่าสุด
         const latestRequests = allRequests.slice(0, 5);
         setRequests(latestRequests);
       } catch (err) {

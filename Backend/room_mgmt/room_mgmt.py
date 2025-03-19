@@ -22,6 +22,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+# Check Permission
 def validate_token(token):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
     print(f"Calling validate_token with token: {token[:10]}...")
@@ -40,7 +41,7 @@ def validate_token(token):
         print(f"Error validating token: {e}")
         return {'error': f'Failed to validate token: {str(e)}', 'status': 500}
 
-# ฟังก์ชันดึงข้อมูลผู้ใช้จาก authen_service
+# fecth Authen data from authen_service
 def get_user_info(user_id):
     auth_url = os.getenv('AUTH_SERVICE_URL', 'http://authen_backend:5000')
     secret_key = os.getenv('SECRET_KEY', 'your-secret-key')
@@ -48,7 +49,6 @@ def get_user_info(user_id):
         print("SECRET_KEY is not set in environment variables")
         return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
-    # สร้าง token ชั่วคราวสำหรับการเรียก internal
     internal_token = jwt.encode(
         {'role': 'admin', 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=5)},
         secret_key,
@@ -82,7 +82,7 @@ def get_user_info(user_id):
         print(f"Error fetching user info for user_id {user_id}: {e}")
         return {'name': 'Unknown', 'role': 'Unknown', 'email': 'N/A'}
 
-# เพิ่มห้องใหม่
+# Add New Room
 @app.route('/rooms', methods=['POST'])
 def add_room():
     token = request.headers.get('Authorization')
@@ -122,13 +122,13 @@ def add_room():
 
     return jsonify({'message': 'Room added successfully', 'room': new_room.to_dict()}), 201
 
-# ดึงข้อมูลห้องทั้งหมด
+# Get ALL
 @app.route('/rooms', methods=['GET'])
 def get_rooms():
     rooms = Room.query.all()
     return jsonify([room.to_dict() for room in rooms]), 200
 
-# ดึงข้อมูลห้องจาก roomid
+# Get Room
 @app.route('/rooms/<int:roomid>', methods=['GET'])
 def get_room(roomid):
     room = db.session.get(Room, roomid)
@@ -136,7 +136,7 @@ def get_room(roomid):
         return jsonify({'error': 'Room not found'}), 404
     return jsonify(room.to_dict()), 200
 
-# อัปเดตข้อมูลห้อง
+# Update Room
 @app.route('/rooms/<int:roomid>', methods=['PUT'])
 def update_room(roomid):
     room = db.session.get(Room, roomid)
@@ -152,7 +152,7 @@ def update_room(roomid):
     db.session.commit()
     return jsonify({'message': 'Room updated successfully', 'room': room.to_dict()}), 200
 
-# ลบห้อง
+# Del Room
 @app.route('/rooms/<int:roomid>', methods=['DELETE'])
 def delete_room(roomid):
     room = db.session.get(Room, roomid)
@@ -168,7 +168,6 @@ def delete_room(roomid):
     db.session.commit()
     return jsonify({'message': 'Room deleted successfully'}), 200
 
-# บันทึก Logs การเข้าใช้ห้อง
 @app.route('/room-usage-logs', methods=['POST'])
 def log_room_usage():
     data = request.get_json()
@@ -199,7 +198,6 @@ def log_room_usage():
         print(f"Error logging room usage: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
-# ดึง Logs ตาม roomid
 @app.route('/room-usage-logs/room/<int:roomid>', methods=['GET', 'PUT'])
 def manage_logs_by_room(roomid):
     inspector = inspect(db.engine)
@@ -271,7 +269,6 @@ def manage_logs_by_room(roomid):
             print(f"Error updating log: {e}")
             return jsonify({'error': 'Internal server error'}), 500
 
-# ดึง Logs ของทุกห้อง
 @app.route('/room-usage-logs/all', methods=['GET'])
 def get_all_logs():
     token = request.headers.get('Authorization')
@@ -287,7 +284,6 @@ def get_all_logs():
     rooms = Room.query.all()
     all_logs = []
 
-    # รับ limit จาก query parameter
     limit = request.args.get('limit', default=5, type=int)
 
     for room in rooms:
@@ -321,7 +317,6 @@ def get_all_logs():
             print(f"Error fetching logs for room {room.roomid}: {e}")
             continue
 
-    # เรียงลำดับและจำกัดจำนวน Logs
     all_logs.sort(key=lambda x: x['time'], reverse=True)
     all_logs = all_logs[:limit]
 

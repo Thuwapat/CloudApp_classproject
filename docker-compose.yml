@@ -1,4 +1,3 @@
-# Database 
 version: "3.8"
 name: coe_room_acesscontrol
 services:
@@ -51,7 +50,7 @@ services:
       POSTGRES_PASSWORD: mypass
       POSTGRES_DB: room_mgmt_db
     ports:
-      - "5434:5432"
+      - "5434:5434"
     volumes:
       - room_mgmt_db_data:/var/lib/postgresql/data
     networks:
@@ -134,7 +133,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app  # Sync โค้ดแบบ Realtime
+      - ./frontend:/app  
       - frontend_node_modules:/app/node_modules  
       - frontend_next:/app/.next
     environment:
@@ -151,8 +150,8 @@ services:
       - room_req_backend
     networks:
       - app-network
-    stdin_open: true  # ป้องกันปัญหากับ npm run dev
-    tty: true         # ให้ container รันแบบ interactive
+    stdin_open: true  
+    tty: true       
 
 volumes:
   auth_db_data:

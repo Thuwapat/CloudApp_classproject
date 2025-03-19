@@ -25,16 +25,13 @@ class Room(db.Model):
             'updated_at': self.updated_at.isoformat()
         }
 
-# ฟังก์ชันสำหรับสร้างตาราง Logs ของห้องแบบ dynamic
 def create_room_log_table(roomid):
     table_name = f"room_{roomid}_logs"
     
-    # ตรวจสอบว่าตารางมีอยู่แล้วหรือไม่
     if table_name in db.metadata.tables:
         print(f"Table {table_name} already exists in metadata.")
         return db.metadata.tables[table_name]
 
-    # สร้างตารางใหม่
     log_table = Table(
         table_name,
         db.metadata,
@@ -44,10 +41,9 @@ def create_room_log_table(roomid):
         Column('end_time', DateTime, nullable=False),
         Column('purpose', String(100)),
         Column('created_at', DateTime, server_default=db.func.current_timestamp()),
-        Column('status', String(1), default='A')  # เพิ่มฟิลด์ status กับค่า default 'A'
+        Column('status', String(1), default='A')  
     )
 
-    # สร้างตารางใน database
     try:
         print(f"Creating table {table_name}...")
         with db.engine.connect() as conn:
@@ -60,7 +56,6 @@ def create_room_log_table(roomid):
 
     return log_table
 
-# คลาสสำหรับเข้าถึงตาราง Logs (dynamic)
 class RoomUsageLog:
     def __init__(self, roomid):
         self.table = create_room_log_table(roomid)
@@ -73,5 +68,5 @@ class RoomUsageLog:
             'end_time': row.end_time.isoformat(),
             'purpose': row.purpose,
             'created_at': row.created_at.isoformat(),
-            'status': getattr(row, 'status', 'A')  # เพิ่ม status ใน dict
+            'status': getattr(row, 'status', 'A') 
         }

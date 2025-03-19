@@ -11,12 +11,11 @@ export default function RequestRoomPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // ดึงข้อมูลห้องจาก room_mgmt
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const response = await apiRoom.get("/rooms");
-        setRooms(response.data); // รับข้อมูลจาก room_mgmt
+        setRooms(response.data); 
       } catch (err) {
         setError("Failed to load rooms");
         console.error("Error fetching rooms:", err);
@@ -36,10 +35,7 @@ export default function RequestRoomPage() {
 
   return (
     <div className="flex h-full bg-gray-100">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <div className="flex-1 p-10">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">
           Good Morning, [Student Name]
@@ -47,18 +43,15 @@ export default function RequestRoomPage() {
         <div className="grid gap-6">
           {rooms.map((room) => (
             <div
-              key={room.roomid} // เปลี่ยนจาก id เป็น roomid
+              key={room.roomid} 
               className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center"
             >
-              {/* Placeholder Image */}
               <div className="w-full h-48 bg-gray-200 flex items-center justify-center rounded mb-4">
                 <span className="text-gray-500">Room Image</span>
               </div>
-
-              {/* Room Details */}
               <div className="text-left w-full">
                 <h2 className="text-xl font-semibold text-gray-900">
-                  {room.roomname || `Room ${room.roomid}`} {/* แสดง roomname หรือใช้ roomid ถ้าไม่มี */}
+                  {room.roomname || `Room ${room.roomid}`} 
                 </h2>
                 <p className="text-gray-600">
                   Type: {room.type || "N/A"}
@@ -68,10 +61,8 @@ export default function RequestRoomPage() {
                   {room.description || "No description available"}
                 </p>
               </div>
-
-              {/* Book Button */}
               <button
-                onClick={() => handleBook(room.roomid)} // เปลี่ยนจาก id เป็น roomid
+                onClick={() => handleBook(room.roomid)} 
                 className="mt-4 bg-black text-white py-2 px-6 rounded hover:bg-gray-800 transition"
               >
                 Request

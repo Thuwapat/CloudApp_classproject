@@ -35,7 +35,7 @@ export default function BookRoomPage() {
     try {
       const response = await apiReq.post('/request', formData);
       setMessage('Room request submitted successfully!');
-      setTimeout(() => router.push('/room_req'), 2000); // กลับไปหน้า Request Room หลังจาก 2 วินาที
+      setTimeout(() => router.push('/room_req'), 2000);
     } catch (error: any) {
       setMessage('Error submitting request: ' + (error.response?.data?.error || error.message));
     } finally {

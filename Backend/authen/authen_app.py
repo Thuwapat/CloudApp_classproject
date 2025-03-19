@@ -164,8 +164,6 @@ def validate_user_by_id():
         data = pyjwt.decode(token.replace('Bearer ', ''), app.config['SECRET_KEY'], algorithms=['HS256'])
         print(f"Decoded token data: {data}")
 
-        # อนุญาตให้ทุก role เรียก endpoint นี้ได้
-        # หรือเพิ่มเงื่อนไข: ถ้าเป็น student ให้ดึงข้อมูลได้เฉพาะของตัวเอง
         if data.get('role') == 'student' and data.get('user_id') != user_id:
             print(f"Unauthorized: student {data.get('user_id')} cannot access user {user_id}")
             return jsonify({'error': 'Unauthorized'}), 403
@@ -261,20 +259,16 @@ def update_user(user_id):
     except pyjwt.InvalidTokenError:
         return jsonify({'error': 'Invalid token'}), 401
 
-    # รับข้อมูล JSON จาก client
     json_data = request.get_json()
     if not json_data:
         return jsonify({'error': 'No data provided'}), 400
 
-    # กำหนด field ที่อนุญาตให้ update (รวมทั้ง RFID)
     allowed_fields = ['first_name', 'last_name', 'email', 'rfid']
     
-    # ค้นหาผู้ใช้จาก database
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    # อัปเดตเฉพาะ field ที่ส่งมาใน request
     for field in allowed_fields:
         if field in json_data:
             setattr(user, field, json_data[field])

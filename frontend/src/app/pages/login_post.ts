@@ -7,7 +7,7 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     try {
-        const { email, password } = req.body; // รับข้อมูล email และ password จาก request body
+        const { email, password } = req.body; 
         const { data } = await apiAuth.post('/login', { email, password });
       res.status(200).json(data);
     } catch (error) {

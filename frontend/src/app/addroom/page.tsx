@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/ui/sidebar";
 import DashboardHeader from "@/components/ui/dashboardheader";
 import Input from "@/components/ui/input";
-import { apiRoom } from "@/utility/axiosInstance"; // ใช้ apiRoom ที่ตั้งค่าไว้สำหรับ room_mgmt
+import { apiRoom } from "@/utility/axiosInstance"; 
 import ResponsiveSidebar from "@/components/ui/responsidebar";
 import Header from "@/components/header";
 
@@ -33,7 +33,7 @@ export default function AddNewRoom() {
     }
   }, []);
 
-  // Validation สำหรับ roomId
+
   const handleChangeRoomId = (e: { target: { value: any } }) => {
     const value = e.target.value;
     setRoomId(value);
@@ -51,7 +51,7 @@ export default function AddNewRoom() {
     }
   };
 
-  // Validation สำหรับ roomName
+  
   const handleChangeRoomName = (e: { target: { value: any } }) => {
     const value = e.target.value;
     setRoomName(value);
@@ -63,7 +63,7 @@ export default function AddNewRoom() {
     }
   };
 
-  // Validation สำหรับ capacity
+  
   const handleChangeCapacity = (e: { target: { value: any } }) => {
     const value = e.target.value;
     setCapacity(value);
@@ -86,7 +86,7 @@ export default function AddNewRoom() {
     }
   };
 
-  // Validation สำหรับ type
+ 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setType(value);
@@ -98,7 +98,6 @@ export default function AddNewRoom() {
     }
   };
 
-  // ฟังก์ชันสำหรับเพิ่มห้อง
   const handleAddRoom = async () => {
     if (!roomId || roomIdError) {
       setRoomIdError(roomId ? roomIdError : "Room ID is required");
@@ -151,27 +150,20 @@ export default function AddNewRoom() {
     }
   };
 
-  // ฟังก์ชันสำหรับยกเลิก
   const handleCancel = () => {
     router.push("/rooms");
   };
 
   return (
     <div className="flex h-full">
-      {/* Sidebar ด้านซ้าย */}
       <Header firstName={''}/>
       <ResponsiveSidebar />
-      {/* ส่วนเนื้อหา (Main Content) ด้านขวา */}
       <div className="flex-1 flex flex-col h-screen">
-        {/* Header ด้านบน */}
-        {/* <DashboardHeader firstName={firstName} /> */}
 
-        {/* ส่วนเนื้อหาหลัก (Form Add New Room) */}
         <div className="p-6 pl-70 pt-20 overflow-auto bg-[#F5F3EF] h-full">
           <div className="bg-white p-6 rounded shadow">
             <h2 className="text-xl font-bold mb-6 text-black">Add New Room</h2>
 
-            {/* แสดงข้อความ Success หรือ Error */}
             {successMessage && (
               <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
                 {successMessage}
@@ -183,11 +175,8 @@ export default function AddNewRoom() {
               </div>
             )}
 
-            {/* ฟอร์ม 2 คอลัมน์ */}
             <div className="grid grid-cols-2 gap-8">
-              {/* คอลัมน์ซ้าย */}
               <div>
-                {/* Room Name */}
                 <div className="mb-4">
                   <label className="block font-medium mb-2 text-[#221C3FFF]">
                     Room Name
@@ -203,7 +192,6 @@ export default function AddNewRoom() {
                   )}
                 </div>
 
-                {/* Type */}
                 <div className="mb-4">
                   <label className="block font-medium mb-2 text-[#221C3FFF]">
                     Type
@@ -217,14 +205,13 @@ export default function AddNewRoom() {
                     <option value="Conference Room">Conference Room</option>
                     <option value="Work Room">Work Room</option>
                     <option value="Classroom">Classroom</option>
-                    <option value="Labartory">Labartory</option> {/* แก้ typo จาก Classroom เป็น Labartory */}
+                    <option value="Labartory">Labartory</option> 
                   </select>
                   {typeError && (
                     <p className="text-red-500 text-sm mt-1">{typeError}</p>
                   )}
                 </div>
 
-                {/* Description */}
                 <div className="mb-4">
                   <label className="block font-medium mb-2 text-[#221C3FFF]">
                     Description
@@ -238,10 +225,7 @@ export default function AddNewRoom() {
                   />
                 </div>
               </div>
-
-              {/* คอลัมน์ขวา */}
               <div>
-                {/* Room ID */}
                 <div className="mb-4">
                   <label className="block font-medium mb-2 text-[#221C3FFF]">
                     Room ID
@@ -256,8 +240,6 @@ export default function AddNewRoom() {
                     <p className="text-red-500 text-sm mt-1">{roomIdError}</p>
                   )}
                 </div>
-
-                {/* Capacity */}
                 <div className="mb-4">
                   <label className="block font-medium mb-2 text-[#221C3FFF]">
                     Capacity
@@ -278,7 +260,6 @@ export default function AddNewRoom() {
               </div>
             </div>
 
-            {/* ปุ่มด้านล่าง */}
             <div className="mt-6 flex space-x-4">
               <button
                 onClick={handleAddRoom}

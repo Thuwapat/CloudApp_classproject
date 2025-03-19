@@ -20,48 +20,39 @@ export default function GalleryClient({ images }: GalleryClientProps) {
   const [imageUrls, setImageUrls] = useState<Record<number, string>>({});
   const [firstName, setFirstName] = useState('User');
 
-  // จำนวนรูปต่อหน้า
   const imagesPerPage = 12;
 
-  // ฟิลเตอร์รูปตามวันที่ (รูปแบบ: YYYY-MM-DD)
   const filteredImages = filterDate
     ? images.filter((img) => img.uploaded_at.substring(0, 10) === filterDate)
     : images;
 
-  // คำนวณรูปที่จะนำมาแสดงในหน้าปัจจุบัน
   const indexOfLastImage = currentPage * imagesPerPage;
   const indexOfFirstImage = indexOfLastImage - imagesPerPage;
   const currentImages = filteredImages.slice(indexOfFirstImage, indexOfLastImage);
 
-  // จำนวนหน้าทั้งหมด
   const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
 
-  // เปลี่ยนหน้า
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  // เปลี่ยนหน้าไปหน้าถัดไป
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  // เปลี่ยนหน้าไปหน้าก่อนหน้า
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // เมื่อเปลี่ยนวันที่ใน input
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilterDate(e.target.value);
     setCurrentPage(1);
   };
 
-  // ดึงรูปภาพจาก API โดยใช้ API_KEY
   const fetchImage = async (id: number, retries = 3) => {
     const apiKey = process.env.NEXT_PUBLIC_API_KEY_IMAGE;
     if (!apiKey) {
@@ -95,7 +86,6 @@ export default function GalleryClient({ images }: GalleryClientProps) {
     }
   };
 
-  // ดึงรูปภาพทั้งหมดเมื่อ component ถูก mount หรือ currentImages เปลี่ยน
   useEffect(() => {
     currentImages.forEach((img) => {
       if (!imageUrls[img.id]) {
@@ -104,7 +94,6 @@ export default function GalleryClient({ images }: GalleryClientProps) {
     });
   }, [currentImages]);
 
-  // คลีนอัพ Blob URL เฉพาะเมื่อ component unmount
   useEffect(() => {
     return () => {
       Object.values(imageUrls).forEach((url) => URL.revokeObjectURL(url));
@@ -112,14 +101,13 @@ export default function GalleryClient({ images }: GalleryClientProps) {
     };
   }, []);
 
-  // คำนวณหน้าที่จะแสดง (เช่น แสดง 7 หน้า)
   const getPaginationRange = () => {
-    const maxVisiblePages = 7; // แสดงสูงสุด 7 หน้า (รวม "...")
-    const halfVisible = Math.floor(maxVisiblePages / 2); // 3 หน้าซ้ายและขวาของหน้าปัจจุบัน
+    const maxVisiblePages = 7; 
+    const halfVisible = Math.floor(maxVisiblePages / 2); 
     let start = Math.max(1, currentPage - halfVisible);
     let end = Math.min(totalPages, start + maxVisiblePages - 1);
 
-    // ปรับ start ถ้า end ถึงหน้าสุดท้ายแล้ว
+
     if (end - start + 1 < maxVisiblePages) {
       start = Math.max(1, end - maxVisiblePages + 1);
     }
@@ -129,18 +117,17 @@ export default function GalleryClient({ images }: GalleryClientProps) {
       pages.push(i);
     }
 
-    // เพิ่ม "..." และหน้าสุดท้ายถ้าจำเป็น
     if (start > 1) {
-      pages.unshift(1); // เพิ่มหน้าแรก
+      pages.unshift(1); 
       if (start > 2) {
-        pages.splice(1, 0, '...'); // เพิ่ม "..." หลังหน้า 1
+        pages.splice(1, 0, '...'); 
       }
     }
     if (end < totalPages) {
       if (end < totalPages - 1) {
-        pages.push('...'); // เพิ่ม "..." ก่อนหน้าสุดท้าย
+        pages.push('...'); 
       }
-      pages.push(totalPages); // เพิ่มหน้าสุดท้าย
+      pages.push(totalPages); 
     }
 
     return pages;
@@ -148,17 +135,11 @@ export default function GalleryClient({ images }: GalleryClientProps) {
 
   return (
     <div className="bg-[#f4e2dc] min-h-screen flex">
-      {/* Responsive Sidebar */}
         <Header firstName={''}/>
       <ResponsiveSidebar />
-      {/* Main Content */}
       <div className="flex-1 ml-0 sm:ml-64">
-        {/* Header (อาจเป็นแบบ fixed ถ้าต้องการ ให้ปรับ padding-top ของ Main Content ด้วย) */}
-        {/* <Header firstName={firstName} /> */}
 
-        {/* Container สำหรับ Filter และ Gallery (จัดให้อยู่ใน container เดียวกันเพื่อให้ alignment ตรงกัน) */}
         <div className="max-w-6xl mx-auto mt-20 p-6 text-amber-400">
-          {/* Filter (อยู่ด้านบนขวา) */}
           <div className="flex justify-end items-center gap-5 mb-6">
             <label htmlFor="filterDate" className="text-gray-700">
             Filter:
@@ -172,8 +153,6 @@ export default function GalleryClient({ images }: GalleryClientProps) {
               className="border border-white rounded p-2 text-gray-900"
             />
           </div>
-
-          {/* Gallery (Grid รูปภาพ) */}
           <div className="border-gray-200 p-6 rounded-lg">
             {currentImages.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -204,9 +183,7 @@ export default function GalleryClient({ images }: GalleryClientProps) {
           </div>
         </div>
 
-        {/* Pagination */}
         <div className="pagination mt-4 flex justify-center items-center gap-2">
-          {/* ปุ่ม Prev */}
           <button
             onClick={handlePrevPage}
             disabled={currentPage === 1}
@@ -217,7 +194,6 @@ export default function GalleryClient({ images }: GalleryClientProps) {
             ← Prev
           </button>
 
-          {/* ตัวเลขหน้า */}
           {getPaginationRange().map((page, index) => (
             <button
               key={index}
@@ -235,7 +211,6 @@ export default function GalleryClient({ images }: GalleryClientProps) {
             </button>
           ))}
 
-          {/* ปุ่ม Next */}
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}

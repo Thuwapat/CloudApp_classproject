@@ -41,7 +41,7 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#f4e2dc] p-4">
       <div className="mx-auto flex w-full max-w-5xl flex-col-reverse items-center gap-8 md:flex-row md:gap-12">
-        {/* Left side: Form */}
+     
         <div className="w-full rounded-lg bg-white p-6 shadow md:w-1/2">
           <h2 className="mb-4 text-xl font-bold text-gray-900">Create your Account</h2>
           <p className="mb-6 text-sm text-gray-500">
@@ -105,7 +105,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Checkbox & Terms */}
             <div className="mt-4 space-y-2 text-sm text-gray-500">
               <div>
                 <input
@@ -153,7 +152,6 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        {/* Right side: Illustration with animation */}
         <div className="flex w-full items-center justify-center md:w-1/2">
           <Image
             src="/image_room.svg"

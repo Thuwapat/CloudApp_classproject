@@ -56,7 +56,6 @@ export default function AnalyticsPage() {
         <ResponsiveSidebar />
       </div>
 
-      {/* Main Content */}
       <main className="flex-1 p-6 overflow-auto">
         <h1 className="text-2xl font-bold text-[#221C3FFF] mb-4">Analytics</h1>
         <div className="bg-white p-6 shadow-md rounded-lg h-screen">

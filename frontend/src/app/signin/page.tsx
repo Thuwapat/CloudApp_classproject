@@ -30,7 +30,7 @@ export default function LoginPage() {
       localStorage.setItem("user", JSON.stringify(loginData.user));
       
       // Check the user's role and redirect
-      const userRole = loginData.user.role; // Assuming role is in user object
+      const userRole = loginData.user.role; 
       if (userRole === "student") {
         router.push("/room_req"); // Request-room
       } else if (userRole === "teacher" || userRole === "admin") {
@@ -65,14 +65,13 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#f4e2dc] p-4 md:flex-row">
       <div className="w-full max-w-4xl overflow-hidden rounded-md bg-white border border-gray-200 shadow-md md:flex">
-        {/* โซนซ้าย (ฟอร์ม) */}
+
         <div className="mx-auto w-full max-w-md p-8 py-8 md:w-1/2 ">
           <h2 className="mb-2 text-2xl font-bold text-[#221d42]">Welcome back</h2>
           <p className="mb-6 text-sm text-gray-500">
             Login to your Acme Inc account
           </p>
 
-          {/* ฟอร์ม */}
           <form className="mb-4 space-y-5" onSubmit={handleLogin}>
             <div>
               <Label className="font-bold text-[#221d42]">Email</Label>
@@ -108,16 +107,13 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Separator */}
           <div className="mb-4 flex items-center">
             <div className="h-px flex-1 bg-gray-200"></div>
             <p className="px-3 text-sm text-gray-400">Or continue with</p>
             <div className="h-px flex-1 bg-gray-200"></div>
           </div>
 
-          {/* ปุ่ม Social Login */}
           <div className="mb-6 flex gap-2">
-            {/* Google Login Button */}
             <Button
               className="flex-1 rounded border py-2 bg-[#E08184FF] text-sm hover:bg-[#E06A6EFF]"
               onClick={handleGoogleLogin}
@@ -126,7 +122,6 @@ export default function LoginPage() {
               {loading ? "Loading..." : "Sign in with Google"}
             </Button>
 
-            {/* SSO KKU Button (existing) */}
             <Button
               className="flex-1 rounded border py-2 bg-[#E08184FF] text-sm hover:bg-[#E06A6EFF]"
               onClick={() => alert("SSO KKU login not implemented yet")}
@@ -136,7 +131,6 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          {/* Sign Up */}
           <p className="text-center text-sm text-gray-500">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-[#3882BEFF] hover:underline">
@@ -144,7 +138,6 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          {/* Terms */}
           <p className="mt-6 text-center text-xs text-gray-400">
             By clicking continue, you agree to our{" "}
             <Link href="#" className="underline">
@@ -155,12 +148,9 @@ export default function LoginPage() {
               Privacy Policy
             </Link>.
           </p>
-
-          {/* Error Message */}
           {error && <p className="mt-4 text-center text-sm text-red-500">{error}</p>}
         </div>
 
-        {/* โซนขวา (รูปภาพ) */}
         <div className="hidden h-full w-full items-center justify-center bg-white md:flex md:w-1/2">
           <Image
             src="/room1.svg"

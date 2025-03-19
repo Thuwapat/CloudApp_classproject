@@ -12,10 +12,7 @@ export default function CallbackPage() {
     const fetchUserData = async () => {
       if (token) {
         try {
-          // เก็บ token
           localStorage.setItem("token", token);
-
-          // เรียก API เพื่อดึงข้อมูลผู้ใช้จาก backend
           const response = await apiAuth.get("/protected", {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -23,16 +20,13 @@ export default function CallbackPage() {
           });
 
           const userData = response.data;
-          // เก็บ user data ใน localStorage
           localStorage.setItem("user", JSON.stringify({
             id: userData.user_id,
             role: userData.role,
-            // ดึง first_name จาก backend (ต้องเพิ่มใน /protected response)
-            first_name: userData.first_name || "User", // หาก backend ไม่ส่ง first_name มา
+            first_name: userData.first_name || "User",
             email: userData.email || "email@example.com",
           }));
-
-          // Redirect ตาม role
+          // Redirect Depend on Role
           if (userData.role === "student") {
             router.push("/room_req");
           } else if (userData.role === "teacher" || userData.role === "admin") {

@@ -6,7 +6,7 @@ import Sidebar from "@/components/ui/sidebar";
 import ResponsiveSidebar from '@/components/ui/responsidebar';
 import Header from '@/components/header';
 import DashboardHeader from "@/components/ui/dashboardheader";
-import { apiRoom, apiReq } from "@/utility/axiosInstance"; // เพิ่ม apiReq เพื่อดึง status ถ้าจำเป็น
+import { apiRoom, apiReq } from "@/utility/axiosInstance"; 
 
 export default function RoomAccessLog() {
   const { roomId } = useParams();
@@ -72,7 +72,7 @@ export default function RoomAccessLog() {
 
         console.log("Logs from API:", logs);
 
-        // ถ้า backend ไม่ส่ง status มาหรือส่งไม่ถูกต้อง ดึง status จาก room_req
+        // No backend send status or error use status from room_req
         if (!logs.every((log) => log.status)) {
           const requestsResponse = await apiReq.get(`/requests`, {
             headers: {
@@ -97,7 +97,6 @@ export default function RoomAccessLog() {
           });
         }
 
-        // แปลงข้อมูล logs
         let logsWithUserData = logs.map((log) => ({
           id: log.logid,
           name: log.user_name || "Unknown",
@@ -109,15 +108,13 @@ export default function RoomAccessLog() {
           checkOut: new Date(log.end_time).toLocaleTimeString(),
           roomID: roomId,
           photo: "/dummy-photo.jpg",
-          startTime: log.start_time, // เก็บ startTime เพื่อใช้ในการเรียงลำดับ
+          startTime: log.start_time,
         }));
 
-        // กรองเฉพาะ logs ที่มี status เป็น A หรือ R
         logsWithUserData = logsWithUserData.filter(
           (log) => log.status === "A" || log.status === "R"
         );
 
-        // เรียง logs จากล่าสุดไปเก่าสุด
         logsWithUserData.sort((a, b) => 
           new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
         );
