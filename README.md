@@ -1,8 +1,16 @@
-# CloudApp_classproject
+# COE_Access
 
-## SSL Cert Command using openssl via git bash
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
+![image](https://github.com/user-attachments/assets/e695ea4e-51e4-4f77-a0b1-36180c0129ed)
 
+## Project Setup
+1. git clone https://github.com/Thuwapat/CloudApp_classproject.git
+2. docker-compose up -d
+3. ไปที่ http://localhost:3000
+   
+![COE_Access (2)](https://github.com/user-attachments/assets/f75d2719-fc0b-460f-84c9-6b7bda07cc20)
+
+
+## SSL Cert Command using openssl via git bash (กรณอยากใช้ OAuth 2.0 ของ Google)
 ## ขั้นตอนที่ 1 : Run commeand 
 `openssl req -x509 -nodes -newkey rsa:2048 -keyout mycert.key -out mycert.crt -days 365 -subj "/CN=localhost"` 
 จะได้  mycert.key 
@@ -53,6 +61,14 @@ openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -node
 การแจ้งเตือนความปลอดภัย:
 
 หากมีข้อความแจ้งเตือน (Security Warning) ว่าการนำเข้า Certificate ที่ไม่รู้จักอาจมีความเสี่ยง ให้ตรวจสอบข้อมูลของใบรับรอง จากนั้นคลิก Yes เพื่อยืนยัน
+
+==============================================================================================
+Porramass      Petsataporn          Student No. 643040202-4
+Sippawit         Chanto                 Student No. 643040217-1
+Thuwapat       Rattanawan          Student No. 643040529-2
+Siwatchaya     Rungrojnimitchai   Student No. 643040540-4
+Ekkaphume     Prasert                 Student No. 643040546-2
+==============================================================================================
 ข้อความสำเร็จ:
 
 หากการนำเข้าเสร็จสมบูรณ์ จะมีข้อความแจ้งว่า “The import was successful.” ปรากฏขึ้น
