@@ -73,7 +73,7 @@ services:
     environment:
       - FLASK_ENV=development  
       - DATABASE_URL=postgresql://myuser:mypass@auth_db:5432/auth_db
-      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
+      - SECRET_KEY= # Your KEY
       - GOOGLE_CLIENT_ID=1033311153846-985omsfscb3beu6u42c0qpo6k6m5vheg.apps.googleusercontent.com
       - GOOGLE_CLIENT_SECRET=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
     depends_on:
@@ -95,7 +95,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_req_db:5432/room_req_db
-      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
+      - SECRET_KEY= # Your KEY
     depends_on:
       room_req_db:
         condition: service_healthy
@@ -117,7 +117,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_ROOM_URL=postgresql://myuser:mypass@room_mgmt_db:5432/room_mgmt_db
-      - SECRET_KEY=60aed22ea8229e5b975d51423e6e4926e198b3afb14aec9e09e1ee5340cb976a
+      - SECRET_KEY=
     depends_on:
       room_mgmt_db: 
         condition: service_healthy
@@ -143,7 +143,7 @@ services:
       - NEXT_PUBLIC_API_AUTH_URL=http://localhost:5000  # สำหรับ Authentication
       - NEXT_PUBLIC_API_REQ_URL=http://localhost:5001  # สำหรับ Request Service
       - NEXT_PUBLIC_API_ROOM_URL=http://localhost:5002 # สำหรับ Room Mgmt
-      - NEXT_PUBLIC_API_KEY_IMAGE=1852c3fd33edbe8c95231e5a74106018dcec3a448eacb0d9270f28821033ea4a # สำหรับดึงรูปจากกลุ่ม 1
+      - NEXT_PUBLIC_API_KEY_IMAGE= # สำหรับดึงรูปจากกลุ่ม 1
     command: npm run dev
     depends_on:
       - authen_backend
